@@ -1,4 +1,3 @@
-package com.example.orderDomain.valueobject;
-
+package com.example.order_domain_core.valueobject;
 public class RestaurantId {
 }

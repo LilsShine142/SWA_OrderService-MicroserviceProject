@@ -1,8 +1,8 @@
-package com.example.orderDomain.entity;
+package com.example.order_domain_core.entity;
 
-import com.example.orderDomain.entity.OrderItem;
-import com.example.orderDomain.exception.OrderDomainException;
-import com.example.orderDomain.valueobject.*;
+import com.example.order_domain_core.exception.OrderDomainException;
+import com.example.order_domain_core.valueobject.*;
+;
 
 import java.time.Instant; // THÊM: Để dùng cho createdAt
 import java.util.List;

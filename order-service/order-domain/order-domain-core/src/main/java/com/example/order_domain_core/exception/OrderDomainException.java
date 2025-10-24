@@ -1,4 +1,4 @@
-package com.example.orderDomain.exception;
+package com.example.order_domain_core.exception;
 
 
 /**

@@ -1,7 +1,7 @@
-package com.example.orderDomain.entity;
+package com.example.order_domain_core.entity;
 
 
-import com.example.orderDomain.valueobject.*;
+import com.example.order_domain_core.valueobject.*;
 
 /**
  * Entity: OrderItem
