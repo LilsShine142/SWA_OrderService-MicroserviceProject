@@ -5,21 +5,21 @@
 
 	<parent>
 		<groupId>com.example</groupId>
-		<artifactId>orderService</artifactId>
+		<artifactId>order-domain</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath> </parent>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 
-	<artifactId>orderDomain</artifactId>
-	<name>orderDomain</name>
-	<description>Domain layer (core business logic)</description>
+	<artifactId>order-domain-core</artifactId>
+	<packaging>jar</packaging>
+	<name>order-domain-core</name>
+	<description>Core Domain Logic (Entities, Value Objects)</description>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
 		</dependency>
-
 	</dependencies>
-
 </project>
