@@ -7,19 +7,19 @@
 		<groupId>com.example</groupId>
 		<artifactId>orderService</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath> </parent>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 
 	<artifactId>order-domain</artifactId>
-	<name>orderDomain</name>
-	<description>Domain layer (core business logic)</description>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+	<packaging>pom</packaging>
 
-	</dependencies>
+	<name>order-domain</name>
+	<description>Parent POM for Domain and Application layers</description>
+
+	<modules>
+		<module>order-domain-core</module>
+		<module>order-application-service</module>
+	</modules>
 
 </project>

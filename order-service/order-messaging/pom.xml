@@ -10,7 +10,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>orderMessaging</artifactId>
+	<artifactId>order-messaging</artifactId>
 	<name>orderMessaging</name>
 	<description>Messaging layer (Kafka/RabbitMQ producers, consumers)</description>
 
@@ -23,7 +23,12 @@
 
 		<dependency>
 			<groupId>com.example</groupId>
-			<artifactId>orderDomain</artifactId>
+			<artifactId>order-domain-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>order-application-service</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

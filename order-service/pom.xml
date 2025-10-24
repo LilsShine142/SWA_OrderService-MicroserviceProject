@@ -30,14 +30,14 @@
 	</scm>
 
 	<properties>
-		<java.version>17</java.version>
+		<java.version>23</java.version>
 	</properties>
 
 	<modules>
-		<module>orderDomain</module>
-		<module>orderDataaccess</module>
-		<module>orderMessaging</module>
-		<module>orderContainer</module>
+		<module>order-domain</module>
+		<module>order-dataaccess</module>
+		<module>order-messaging</module>
+		<module>order-container</module>
 	</modules>
 
 </project>

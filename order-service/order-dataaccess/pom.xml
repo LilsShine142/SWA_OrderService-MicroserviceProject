@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>orderDataaccess</artifactId>
-	<name>orderDataaccess</name>
+	<name>order-dataaccess</name>
 	<description>Data access layer (JPA, Repositories)</description>
 
 	<dependencies>
@@ -32,7 +32,11 @@
 
 		<dependency>
 			<groupId>com.example</groupId>
-			<artifactId>orderDomain</artifactId>
+			<artifactId>order-domain-core</artifactId>
+			<version>${project.version}</version> </dependency>
+		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>order-application-service</artifactId>
 			<version>${project.version}</version> </dependency>
 	</dependencies>
 
