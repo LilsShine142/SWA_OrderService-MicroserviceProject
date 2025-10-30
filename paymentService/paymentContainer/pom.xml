@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project>
 	<modelVersion>4.0.0</modelVersion>
-
-	<!-- Parent là paymentService -->
 	<parent>
 		<groupId>com.example</groupId>
 		<artifactId>paymentService</artifactId>
@@ -19,6 +16,13 @@
 	</properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>paymentApplication</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 		<!-- Dependency vào infrastructure module -->
 		<dependency>
 			<groupId>com.example</groupId>
@@ -39,6 +43,10 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -47,8 +55,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<!-- Chỉ định main class trong paymentContainer -->
-					<mainClass>com.example.payment.PaymentApplication</mainClass>
+					<mainClass>com.example.payment.PaymentServiceApplication</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -1,24 +1,14 @@
 package com.example.paymentContainer;
 
+import com.example.payment.PaymentServiceApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-// THÊM classes attribute để chỉ định configuration class
-@SpringBootTest(classes = PaymentContainerApplicationTests.TestConfig.class)
+@SpringBootTest(classes = PaymentServiceApplication.class)
 class PaymentContainerApplicationTests {
 
 	@Test
 	void contextLoads() {
-		// Test sẽ pass nếu Spring context load thành công
-	}
-
-	// TẠO inner configuration class cho test
-	@org.springframework.boot.test.context.TestConfiguration
-	static class TestConfig {
-		// Có thể thêm @Bean definitions nếu cần
-		// @Bean
-		// public SomeService someService() {
-		//     return new SomeService();
-		// }
+		// Test để kiểm tra Spring context load thành công
 	}
 }

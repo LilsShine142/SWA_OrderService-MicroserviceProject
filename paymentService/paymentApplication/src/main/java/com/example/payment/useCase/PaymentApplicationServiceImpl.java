@@ -16,9 +16,6 @@ import com.example.payment.ports.input.service.PaymentApplicationService;
 import com.example.payment.ports.output.MessageBrokerOutputPort;
 import com.example.payment.ports.output.PaymentRepository;
 import com.example.payment.valueobject.PaymentStatus;
-import com.example.payment.valueobject.OrderId;
-import org.junit.platform.commons.logging.Logger;
-import org.junit.platform.commons.logging.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +29,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PaymentApplicationServiceImpl implements PaymentApplicationService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PaymentApplicationServiceImpl.class);
 
     private final PaymentRepository paymentRepository;
     private final MessageBrokerOutputPort messageBrokerOutputPort;
@@ -117,7 +112,7 @@ public class PaymentApplicationServiceImpl implements PaymentApplicationService 
     public TrackPaymentResponse trackPayment(TrackPaymentQuery query) {
 
         // 1. Dùng Cổng Ra (Repository) để tìm
-        Payment payment = paymentRepository.findById(query.paymentId()) // ✅ Sửa thành .paymentId()
+        Payment payment = paymentRepository.findById(query.paymentId())
                 .orElseThrow(() -> {
 
                     return new PaymentNotFoundException("Thanh toán không tồn tại.");
@@ -127,21 +122,21 @@ public class PaymentApplicationServiceImpl implements PaymentApplicationService 
         return paymentDataMapper.paymentToTrackPaymentResponse(payment);
     }
 
-    /**
-     * Triển khai Use Case: Get Payments By Order
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public List<PaymentResponse> getPaymentsByOrder(UUID orderId) {
-
-        // 1. Dùng Cổng Ra (Repository) để tìm payments theo order
-        Optional<Payment> payments = paymentRepository.findByOrderId(new OrderId(orderId));
-
-        // 2. Map danh sách Payment entities sang PaymentResponse DTOs
-        List<PaymentResponse> responses = payments.stream()
-                .map(paymentDataMapper::paymentToPaymentResponse)
-                .collect(Collectors.toList());
-
-        return responses;
-    }
+//    /**
+//     * Triển khai Use Case: Get Payments By Order
+//     */
+//    @Override
+//    @Transactional(readOnly = true)
+//    public List<PaymentResponse> getPaymentsByOrder(UUID orderId) {
+//
+//        // 1. Dùng Cổng Ra (Repository) để tìm payments theo order
+//        Optional<Payment> payments = paymentRepository.findByOrderId(new OrderId(orderId));
+//
+//        // 2. Map danh sách Payment entities sang PaymentResponse DTOs
+//        List<PaymentResponse> responses = payments.stream()
+//                .map(paymentDataMapper::paymentToPaymentResponse)
+//                .collect(Collectors.toList());
+//
+//        return responses;
+//    }
 }
