@@ -1,8 +1,5 @@
 package com.example.payment.persistence.entity;
 
-import com.example.payment.valueobject.OrderId;
-import com.example.payment.valueobject.CustomerId;
-import com.example.payment.valueobject.PaymentId;
 import com.example.payment.valueobject.PaymentStatus;
 import com.example.payment.valueobject.PaymentSagaStatus;
 
@@ -10,10 +7,11 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
- * Lớp này map với bảng "payments" trong CSDL.
- * Vị trí: payment-persistence/entity/
+ * Entity map với bảng "payments" trong CSDL.
+ * Lưu UUID trực tiếp thay vì Value Object để tương thích với JPA
  */
 @Entity
 @Table(name = "payments", schema = "payment")
@@ -21,13 +19,13 @@ public class PaymentEntity {
 
     @Id
     @Column(name = "id", nullable = false, updatable = false)
-    private PaymentId id;
+    private UUID id;
 
     @Column(name = "order_id", nullable = false)
-    private OrderId orderId;
+    private UUID orderId;
 
     @Column(name = "customer_id", nullable = false)
-    private CustomerId customerId;
+    private UUID customerId;
 
     @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
@@ -74,7 +72,7 @@ public class PaymentEntity {
     public PaymentEntity() {}
 
     // Constructor đầy đủ
-    public PaymentEntity(PaymentId id, OrderId orderId, CustomerId customerId, BigDecimal amount,
+    public PaymentEntity(UUID id, UUID orderId, UUID customerId, BigDecimal amount,
                          PaymentStatus paymentStatus, String transactionId, String failureReason,
                          LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime transactionStartAt,
                          LocalDateTime transactionEndAt, String sagaId, String sagaStep,
@@ -98,27 +96,27 @@ public class PaymentEntity {
     }
 
     // Getters and Setters
-    public PaymentId getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(PaymentId id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public OrderId getOrderId() {
+    public UUID getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(OrderId orderId) {
+    public void setOrderId(UUID orderId) {
         this.orderId = orderId;
     }
 
-    public CustomerId getCustomerId() {
+    public UUID getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(CustomerId customerId) {
+    public void setCustomerId(UUID customerId) {
         this.customerId = customerId;
     }
 

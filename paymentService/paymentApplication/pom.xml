@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project>
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>com.example</groupId>
 		<artifactId>paymentService</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-
 	<artifactId>paymentApplication</artifactId>
 	<name>paymentApplication</name>
 	<description>Application layer for Payment Service - Use Cases, Ports</description>
@@ -23,7 +20,7 @@
 			<groupId>com.example</groupId>
 			<artifactId>paymentDomain</artifactId>
 		</dependency>
-
+		<!-- Spring Context and Transaction Management -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
@@ -33,7 +30,7 @@
 			<artifactId>spring-tx</artifactId>
 		</dependency>
 
-		<!-- TESTING ĐÚNG CHO APPLICATION LAYER -->
+		<!-- Testing -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
@@ -54,11 +51,5 @@
 			<artifactId>assertj-core</artifactId>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-commons</artifactId>
-        </dependency>
-
-    </dependencies>
-
+	</dependencies>
 </project>

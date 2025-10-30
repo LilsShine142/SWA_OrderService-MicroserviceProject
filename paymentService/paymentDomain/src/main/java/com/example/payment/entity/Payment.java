@@ -74,7 +74,7 @@ public class Payment extends AggregateRoot<PaymentId> {
      */
     public void initializePayment() {
         validateInitialPayment();
-        setId(PaymentId.generate());
+        setId(new PaymentId(UUID.randomUUID()));
         paymentStatus = PaymentStatus.PENDING;
         sagaStatus = PaymentSagaStatus.STARTED;
         attemptCount = 0;

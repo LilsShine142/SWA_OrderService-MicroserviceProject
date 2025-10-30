@@ -26,8 +26,8 @@ public interface PaymentApplicationService {
      */
     TrackPaymentResponse trackPayment(TrackPaymentQuery query);
 
-    /**
-     * Lấy tất cả payments theo order ID
-     */
-    List<PaymentResponse> getPaymentsByOrder(UUID orderId);
+//    /**
+//     * Lấy tất cả payments theo order ID
+//     */
+//    List<PaymentResponse> getPaymentsByOrder(UUID orderId);
 }

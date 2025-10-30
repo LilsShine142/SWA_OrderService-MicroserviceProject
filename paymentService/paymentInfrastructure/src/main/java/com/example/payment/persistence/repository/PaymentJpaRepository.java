@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface PaymentJpaRepository extends JpaRepository<PaymentEntity, UUID> {
-    List<PaymentEntity> findBySagaId(UUID sagaId);
+    List<PaymentEntity> findBySagaId(String sagaId);
 }
