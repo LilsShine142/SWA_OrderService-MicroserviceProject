@@ -5,9 +5,7 @@ package com.example.order.domain.core.service;
 import com.example.order.domain.core.entity.Order;
 import com.example.order.domain.core.event.OrderCreatedEvent;
 import com.example.order.domain.core.exception.OrderDomainException;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j // <-- Lombok sẽ tự động tạo: private static final Logger log;
 public class OrderDomainServiceImpl implements OrderDomainService {
 
     // (XÓA BỎ: private static final Logger LOG = LoggerFactory.getLogger(OrderDomainServiceImpl.class);)
