@@ -105,7 +105,7 @@ public class PaymentController {
     }
 
     /**
-     * VNPay IPN Endpoint (for async notification)
+     * VNPay IPN Endpoint
      */
     @GetMapping("/ipn")
     public ResponseEntity<ResponseData> handlePaymentIPN(@RequestParam Map<String, String> params) {
