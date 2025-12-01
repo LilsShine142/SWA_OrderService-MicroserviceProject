@@ -11,8 +11,11 @@ import org.springframework.stereotype.Component;
 /**
  * Temporary implementation - Only logs the event.
  * Used when Kafka is not yet configured.
+ * 
+ * NOTE: This is now disabled in favor of KafkaOrderCreatedPublisher.
+ * Remove @Component to disable this implementation.
  */
-@Component
+// @Component  // Disabled - using KafkaOrderCreatedPublisher instead
 public class LogOnlyOrderCreatedPublisher implements OrderCreatedPaymentRequestPublisher {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogOnlyOrderCreatedPublisher.class);

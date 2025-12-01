@@ -1,84 +1,64 @@
 package com.example.payment.messaging.kafka.consumer;
 
-import com.example.payment.ports.input.service.PaymentApplicationService;
+import com.example.common_messaging.dto.event.OrderCreatedEvent;
 import com.example.payment.dto.CreatePaymentCommand;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.payment.ports.input.service.PaymentApplicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import java.math.BigDecimal;
-import java.util.Map;
+
 import java.util.UUID;
 
+/**
+ * Consumer để lắng nghe các Order events từ Order Service
+ */
 @Component
 public class OrderEventConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderEventConsumer.class);
 
     private final PaymentApplicationService paymentApplicationService;
-    private final ObjectMapper objectMapper;
 
-    public OrderEventConsumer(PaymentApplicationService paymentApplicationService,
-                              ObjectMapper objectMapper) {
+    public OrderEventConsumer(PaymentApplicationService paymentApplicationService) {
         this.paymentApplicationService = paymentApplicationService;
-        this.objectMapper = objectMapper;
     }
 
-    @KafkaListener(topics = "order-created")
-    public void consumeOrderCreated(String eventJson) {
-        String orderIdStr = null;
-        try {
-            // 1. 📥 PARSE EVENT FROM ORDER SERVICE
-            Map<String, Object> eventMap = objectMapper.readValue(eventJson, Map.class);
-            Map<String, Object> orderData = (Map<String, Object>) eventMap.get("payload");
+    /**
+     * Lắng nghe OrderCreatedEvent - khi order được tạo, Payment Service sẽ tạo payment
+     */
+    @KafkaListener(
+            topics = "order-created",
+            groupId = "payment-service-group",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void consumeOrderCreated(OrderCreatedEvent event) {
+        logger.info("📥 Payment Service nhận OrderCreatedEvent: orderId={}, customerId={}, amount={}, sagaId={}",
+                event.getOrderId(), event.getCustomerId(), event.getTotalAmount(), event.getSagaId());
 
-            if (orderData == null) {
-                throw new IllegalArgumentException("Order data not found in event payload");
+        try {
+            // 1. Validate event data
+            if (event.getOrderId() == null || event.getCustomerId() == null || event.getTotalAmount() == null) {
+                throw new IllegalArgumentException("OrderCreatedEvent thiếu thông tin bắt buộc");
             }
 
-            orderIdStr = (String) orderData.get("id");
-            String customerIdStr = (String) orderData.get("customerId");
-            Object totalAmountObj = orderData.get("totalAmount");
-            BigDecimal totalAmount = convertToBigDecimal(totalAmountObj);
-
-            logger.info("💰 Received order-created event - Order: {}, Amount: {}, Customer: {}",
-                    orderIdStr, totalAmount, customerIdStr);
-
-            // 2. 🔄 CONVERT TO COMMAND FOR APPLICATION LAYER
-            // ✅ FIXED: Use constructor with parameters instead of setters
-            UUID orderId = UUID.fromString(orderIdStr);
-            UUID customerId = UUID.fromString(customerIdStr);
-
+            // 2. Convert to Command for Application Layer
             CreatePaymentCommand command = new CreatePaymentCommand(
-                    orderId,
-                    customerId,
-                    totalAmount
+                    event.getOrderId(),
+                    event.getCustomerId(),
+                    event.getTotalAmount()
             );
 
-            // 3. 🎯 CALL USE CASE THROUGH INPUT PORT
+            // 3. Call Use Case through Input Port
             paymentApplicationService.createPayment(command);
 
-            logger.info("✅ Successfully sent payment creation request for order: {}", orderIdStr);
+            logger.info("Payment Service đã tạo payment thành công cho orderId={}", event.getOrderId());
 
         } catch (IllegalArgumentException e) {
-            logger.error("💥 UUID format error for order: {} - {}", orderIdStr, e.getMessage());
+            logger.error("Lỗi validation cho OrderCreatedEvent: orderId={}, error={}", 
+                    event.getOrderId(), e.getMessage());
         } catch (Exception e) {
-            logger.error("💥 Error processing order-created event for order: {}", orderIdStr, e);
-        }
-    }
-
-    private BigDecimal convertToBigDecimal(Object amountObject) {
-        try {
-            if (amountObject instanceof Number) {
-                return BigDecimal.valueOf(((Number) amountObject).doubleValue());
-            } else if (amountObject instanceof String) {
-                return new BigDecimal((String) amountObject);
-            } else {
-                throw new IllegalArgumentException("Unsupported amount format: " + amountObject.getClass());
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid amount format: " + amountObject, e);
+            logger.error("Lỗi xử lý OrderCreatedEvent: orderId={}", event.getOrderId(), e);
         }
     }
 }
