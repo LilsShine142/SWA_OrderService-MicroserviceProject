@@ -1,5 +1,4 @@
-
-package com.example.order.messaging.config;
+package com.example.payment.messaging.kafka.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -19,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Kafka Consumer Configuration for Order Service
+ * Kafka Consumer Configuration for Payment Service
  * Infrastructure Layer - Technical implementation
  */
 @EnableKafka
@@ -29,7 +28,7 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
     private String bootstrapServers;
 
-    @Value("${spring.kafka.consumer.group-id:order-service-group}")
+    @Value("${spring.kafka.consumer.group-id:payment-service-group}")
     private String groupId;
 
     @Bean
