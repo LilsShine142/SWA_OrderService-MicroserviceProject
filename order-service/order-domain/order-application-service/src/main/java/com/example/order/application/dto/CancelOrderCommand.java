@@ -7,5 +7,5 @@ import java.util.UUID;
  * DTO (Command) để hủy đơn hàng.
  */
 public record CancelOrderCommand(
-        @NotNull UUID orderTrackingId
-) {}
+        @NotNull UUID orderTrackingId,
+        String reason) {}

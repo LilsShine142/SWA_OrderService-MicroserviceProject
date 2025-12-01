@@ -1,6 +1,7 @@
 package com.example.restaurant.container.rest;
 
 import com.example.restaurant.application.dto.request.ApproveOrderCommand;
+import com.example.restaurant.application.dto.request.RejectOrderCommand;
 import com.example.restaurant.application.dto.response.OrderApprovalResponse;
 import com.example.restaurant.application.ports.input.service.RestaurantApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -50,11 +52,11 @@ public class RestaurantController {
     public ResponseEntity<Void> rejectOrder(
             @PathVariable UUID restaurantId,
             @PathVariable UUID orderId,
-            @RequestParam String reason) {
+            @RequestBody @Valid RejectOrderCommand command) {
 
-        log.info("Nhận yêu cầu từ chối đơn: orderId={}, reason={}", orderId, reason);
+        log.info("Nhận yêu cầu từ chối đơn: orderId={}, reason={}", orderId, command.getReason());
 
-        restaurantApplicationService.rejectOrder(orderId, reason);
+        restaurantApplicationService.rejectOrder(orderId, command.getReason());
 
         return ResponseEntity.ok().build();
     }

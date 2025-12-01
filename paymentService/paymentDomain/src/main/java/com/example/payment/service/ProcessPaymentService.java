@@ -11,7 +11,7 @@ import com.example.payment.event.PaymentRefundedEvent;
  * Domain Service Interface (Lõi nghiệp vụ).
  * Định nghĩa các hành động cần thiết cho việc xử lý thanh toán.
  */
-public interface ProcessPaymentService {
+interface ProcessPaymentService {
 
     /**
      * Xác thực (validate) Payment, khởi tạo các trường giá trị (initialize),

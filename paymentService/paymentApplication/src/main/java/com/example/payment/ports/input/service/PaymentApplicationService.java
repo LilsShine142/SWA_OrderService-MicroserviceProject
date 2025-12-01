@@ -3,6 +3,7 @@ package com.example.payment.ports.input.service;
 import com.example.payment.dto.*;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,6 +26,11 @@ public interface PaymentApplicationService {
      * Theo dõi trạng thái của một giao dịch thanh toán
      */
     TrackPaymentResponse trackPayment(TrackPaymentQuery query);
+
+    /**
+     * Lấy danh sách tất cả payments
+     */
+    List<TrackPaymentResponse> getAllPayments();
 
     /**
      * Xử lý VNPay callback/IPN (sandbox)

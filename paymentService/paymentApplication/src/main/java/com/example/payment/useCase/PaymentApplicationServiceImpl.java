@@ -119,6 +119,15 @@ public class PaymentApplicationServiceImpl implements PaymentApplicationService 
         return paymentDataMapper.paymentToTrackPaymentResponse(payment);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrackPaymentResponse> getAllPayments() {
+        List<Payment> payments = paymentRepository.findAll();
+        return payments.stream()
+                .map(paymentDataMapper::paymentToTrackPaymentResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     /**
      * Xử lý VNPay callback/IPN (sandbox)
      */

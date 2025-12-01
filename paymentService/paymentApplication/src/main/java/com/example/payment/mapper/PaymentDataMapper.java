@@ -27,7 +27,7 @@ public class PaymentDataMapper {
                 .customerId(new CustomerId(command.customerId()))
                 .amount(command.amount())
                 .paymentStatus(PaymentStatus.PENDING)
-                .sagaId(UUID.randomUUID().toString())
+                .sagaId(UUID.randomUUID())
                 .sagaStatus(PaymentSagaStatus.STARTED)
                 .sagaStep("PAYMENT_INITIATED")
                 .attemptCount(0)

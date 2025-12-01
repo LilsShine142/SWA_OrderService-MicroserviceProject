@@ -93,5 +93,7 @@ public interface PaymentRepository {
 
     Optional<Payment> findByOrderId(OrderId orderId);
 
-    List<Payment> findBySagaId(String sagaId);
+    List<Payment> findBySagaId(UUID sagaId);
+
+    List<Payment> findAll();
 }

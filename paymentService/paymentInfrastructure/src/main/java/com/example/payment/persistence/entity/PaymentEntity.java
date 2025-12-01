@@ -14,7 +14,7 @@ import java.util.UUID;
  * Lưu UUID trực tiếp thay vì Value Object để tương thích với JPA
  */
 @Entity
-@Table(name = "payments", schema = "payment")
+@Table(name = "payments", schema = "\"payment\"")
 public class PaymentEntity {
 
     @Id
@@ -53,7 +53,7 @@ public class PaymentEntity {
     private LocalDateTime transactionEndAt;
 
     @Column(name = "saga_id")
-    private String sagaId;
+    private UUID sagaId;
 
     @Column(name = "saga_step")
     private String sagaStep;
@@ -75,7 +75,7 @@ public class PaymentEntity {
     public PaymentEntity(UUID id, UUID orderId, UUID customerId, BigDecimal amount,
                          PaymentStatus paymentStatus, String transactionId, String failureReason,
                          LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime transactionStartAt,
-                         LocalDateTime transactionEndAt, String sagaId, String sagaStep,
+                         LocalDateTime transactionEndAt, UUID sagaId, String sagaStep,
                          PaymentSagaStatus sagaStatus, Integer attemptCount, LocalDateTime nextRetryAt) {
         this.id = id;
         this.orderId = orderId;
@@ -184,11 +184,11 @@ public class PaymentEntity {
         this.transactionEndAt = transactionEndAt;
     }
 
-    public String getSagaId() {
+    public UUID getSagaId() {
         return sagaId;
     }
 
-    public void setSagaId(String sagaId) {
+    public void setSagaId(UUID sagaId) {
         this.sagaId = sagaId;
     }
 

@@ -76,11 +76,18 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     }
 
     @Override
-    public List<Payment> findBySagaId(String sagaId) {
+    public List<Payment> findBySagaId(UUID sagaId) {
         return paymentJpaRepository
                 .findBySagaId(sagaId)
                 .stream()
                 .map(paymentPersistenceDataMapper::paymentEntityToPayment)
                 .toList();
+    }
+
+    @Override
+    public List<Payment> findAll() {
+        return paymentJpaRepository.findAll().stream()
+                .map(paymentPersistenceDataMapper::paymentEntityToPayment)
+                .collect(java.util.stream.Collectors.toList());
     }
 }

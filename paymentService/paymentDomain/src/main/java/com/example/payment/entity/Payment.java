@@ -37,7 +37,7 @@ public class Payment extends AggregateRoot<PaymentId> {
     private LocalDateTime transactionEndAt;
 
     // Saga fields
-    private String sagaId;
+    private UUID sagaId;
     private String sagaStep;
     private PaymentSagaStatus sagaStatus;
     private Integer attemptCount;
@@ -78,7 +78,7 @@ public class Payment extends AggregateRoot<PaymentId> {
         paymentStatus = PaymentStatus.PENDING;
         sagaStatus = PaymentSagaStatus.STARTED;
         attemptCount = 0;
-        sagaId = UUID.randomUUID().toString();
+        sagaId = UUID.randomUUID();
         sagaStep = "PAYMENT_INITIATED";
         transactionStartAt = LocalDateTime.now();
         createdAt = Instant.now();
@@ -231,7 +231,7 @@ public class Payment extends AggregateRoot<PaymentId> {
     // --- Các quy tắc (Business Rules) nội bộ, dùng private ---
 
     private void validateInitialPayment() {
-        if (paymentStatus != null || getId() != null) {
+        if (getId() != null) {
             throw new PaymentValidationException("Payment đã được khởi tạo rồi!");
         }
     }
@@ -279,7 +279,7 @@ public class Payment extends AggregateRoot<PaymentId> {
         private String failureReason;
         private LocalDateTime transactionStartAt;
         private LocalDateTime transactionEndAt;
-        private String sagaId;
+        private UUID sagaId;
         private String sagaStep;
         private PaymentSagaStatus sagaStatus;
         private Integer attemptCount;
@@ -332,7 +332,7 @@ public class Payment extends AggregateRoot<PaymentId> {
             return this;
         }
 
-        public Builder sagaId(String sagaId) {
+        public Builder sagaId(UUID sagaId) {
             this.sagaId = sagaId;
             return this;
         }

@@ -1,10 +1,13 @@
 package com.example.order.domain.core.entity;
 
+import com.example.order.domain.core.event.OrderCreatedEvent;
 import com.example.order.domain.core.exception.OrderDomainException;
 import com.example.order.domain.core.valueobject.*;
 
 
 import java.time.Instant; // THÊM: Để dùng cho createdAt
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -55,6 +58,7 @@ public class Order extends AggregateRoot<OrderId> {
         createdAt = Instant.now();
 
         initializeOrderItems();
+        addDomainEvent(new OrderCreatedEvent(this));
     }
 
     public void validateOrder() {
