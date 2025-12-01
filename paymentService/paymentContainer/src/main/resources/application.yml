@@ -40,3 +40,13 @@ logging:
     org.springframework.web: INFO
     org.apache.kafka: ERROR
     org.springframework.kafka: ERROR
+
+# Cấu hình thanh toán VNPAY
+vnp:
+  pay:
+    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  tmnCode: GS884LF7
+  hashSecret: 3OZWA90359NGJYQHBANJRV2AD5ZRUDW2
+  returnUrl: http://localhost:8080/
+  refund:
+    url: https://sandbox.vnpayment.vn/merchant_webapi/merchant.html

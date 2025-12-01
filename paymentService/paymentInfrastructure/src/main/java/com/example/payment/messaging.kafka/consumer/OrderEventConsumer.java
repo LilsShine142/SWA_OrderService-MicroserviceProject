@@ -15,9 +15,7 @@ import java.util.UUID;
  */
 @Component
 public class OrderEventConsumer {
-
     private static final Logger logger = LoggerFactory.getLogger(OrderEventConsumer.class);
-
     private final PaymentApplicationService paymentApplicationService;
 
     public OrderEventConsumer(PaymentApplicationService paymentApplicationService) {

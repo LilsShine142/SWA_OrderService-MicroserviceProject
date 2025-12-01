@@ -20,16 +20,10 @@ public class RestaurantOrderApprovalConsumer {
 
     @KafkaListener(
             topics = "order-created",
-            groupId = "restaurant-service-group",
+            groupId = "restaurant-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void consumeOrderCreated(Object event) {
-        if (!(event instanceof OrderCreatedEvent)) {
-            System.out.println("Nhận event không phải OrderCreatedEvent: " + event.getClass());
-            return;
-        }
-
-        OrderCreatedEvent orderEvent = (OrderCreatedEvent) event;
+    public void consumeOrderCreated(OrderCreatedEvent orderEvent) {
         System.out.println("Nhận OrderCreatedEvent: orderId=" + orderEvent.getOrderId());
 
         try {
