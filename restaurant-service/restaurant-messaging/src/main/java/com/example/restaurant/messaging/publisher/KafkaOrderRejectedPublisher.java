@@ -15,7 +15,7 @@ public class KafkaOrderRejectedPublisher implements OrderRejectedEventPublisher 
     @Override
     public void publish(OrderRejectedEvent event) {
         try {
-            kafkaTemplate.send("order-rejected", event);
+            kafkaTemplate.send("order-rejected", event.getOrderId().toString(), event);
             System.out.println("[KAFKA] Published OrderRejectedEvent: orderId=" + event.getOrderId() +
                     ", reason=" + event.getReason());
         } catch (Exception e) {

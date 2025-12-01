@@ -69,9 +69,11 @@
 package com.example.payment.ports.output;
 
 import com.example.payment.entity.Payment;
+import com.example.payment.valueobject.OrderId;
 import com.example.payment.valueobject.PaymentId;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -88,4 +90,8 @@ public interface PaymentRepository {
     void deleteById(PaymentId paymentId);
 
     Payment update(Payment savedPayment);
+
+    Optional<Payment> findByOrderId(OrderId orderId);
+
+    List<Payment> findBySagaId(String sagaId);
 }

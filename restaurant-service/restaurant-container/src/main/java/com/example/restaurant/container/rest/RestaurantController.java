@@ -3,6 +3,8 @@ package com.example.restaurant.container.rest;
 import com.example.restaurant.application.dto.request.ApproveOrderCommand;
 import com.example.restaurant.application.dto.response.OrderApprovalResponse;
 import com.example.restaurant.application.ports.input.service.RestaurantApplicationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +18,7 @@ import java.util.UUID;
  */
 @Slf4j
 @RestController
-@RequestMapping("/restaurants")
+@RequestMapping("/api/restaurants")
 @RequiredArgsConstructor
 public class RestaurantController {
 
@@ -27,6 +29,8 @@ public class RestaurantController {
      * Nhận từ Order Service qua Kafka (OrderCreatedEvent)
      * Nhưng cũng cung cấp API để test thủ công
      */
+    @Operation(summary = "Duyệt đơn hàng")
+    @ApiResponse(responseCode = "200", description = "Order approved successfully")
     @PostMapping("/{restaurantId}/orders/{orderId}/approve")
     public ResponseEntity<OrderApprovalResponse> approveOrder(
             @PathVariable UUID restaurantId,
@@ -40,6 +44,8 @@ public class RestaurantController {
     /**
      * Từ chối đơn hàng – SAGA Compensation
      */
+    @Operation(summary = "Từ chối đơn hàng")
+    @ApiResponse(responseCode = "200", description = "Order rejected successfully")
     @PostMapping("/{restaurantId}/orders/{orderId}/reject")
     public ResponseEntity<Void> rejectOrder(
             @PathVariable UUID restaurantId,
@@ -56,6 +62,7 @@ public class RestaurantController {
     /**
      * API test call api
      */
+    @Operation(summary = "Health check")
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Restaurant Service is UP");

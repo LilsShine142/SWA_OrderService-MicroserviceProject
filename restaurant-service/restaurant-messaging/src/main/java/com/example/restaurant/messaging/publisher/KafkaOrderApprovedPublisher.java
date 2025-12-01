@@ -15,7 +15,7 @@ public class KafkaOrderApprovedPublisher implements OrderApprovedEventPublisher 
     @Override
     public void publish(OrderApprovedEvent event) {
         try {
-            kafkaTemplate.send("order-approved", event);
+            kafkaTemplate.send("order-approved", event.getOrderId().toString(), event);
             System.out.println("[KAFKA] Published OrderApprovedEvent: orderId=" + event.getOrderId());
         } catch (Exception e) {
             System.out.println("Lỗi publish OrderApprovedEvent: " + e.getMessage());
