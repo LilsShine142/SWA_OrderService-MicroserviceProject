@@ -12,17 +12,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Kafka Implementation of OrderCreatedPaymentRequestPublisher
- * Infrastructure Layer - Implements Domain Port (Clean Architecture)
- * 
- * This class converts Domain Event to Messaging DTO and publishes to Kafka
- * 
- * Clean Architecture Compliance:
- * - Implements domain port (OrderCreatedPaymentRequestPublisher) from application layer
- * - Converts domain events to messaging DTOs (adapter pattern)
- * - All Kafka-specific code is isolated in infrastructure layer
- */
 @Primary
 @Component
 public class KafkaOrderCreatedPublisher implements OrderCreatedPaymentRequestPublisher {
