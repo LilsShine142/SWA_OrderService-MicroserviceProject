@@ -9,5 +9,6 @@ import java.util.UUID;
 public record CreatePaymentResponse(
         @NotNull UUID paymentId,
         @NotNull String status,
-        @NotNull String message
+        @NotNull String message,
+        @NotNull String paymentUrl
 ) {}

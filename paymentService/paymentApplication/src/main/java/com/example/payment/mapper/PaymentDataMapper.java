@@ -39,11 +39,12 @@ public class PaymentDataMapper {
     /**
      * Chuyển đổi Payment Domain Entity thành CreatePaymentResponse
      */
-    public CreatePaymentResponse paymentToCreatePaymentResponse(Payment payment, String message) {
+    public CreatePaymentResponse paymentToCreatePaymentResponse(Payment payment, String message, String paymentUrl) {
         return new CreatePaymentResponse(
                 payment.getId(),
                 payment.getPaymentStatus().name(),
-                message
+                message,
+                paymentUrl
         );
     }
 
