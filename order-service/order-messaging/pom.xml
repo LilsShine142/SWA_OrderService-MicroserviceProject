@@ -21,6 +21,25 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Spring Kafka -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
+		<!-- Jackson for JSON serialization -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+		<!-- Common Messaging for shared DTOs -->
+		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>common-messaging</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.example</groupId>
 			<artifactId>order-domain-core</artifactId>
