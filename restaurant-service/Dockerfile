@@ -12,7 +12,7 @@ COPY restaurant-service /app/restaurant-service
 
 # Build restaurant-service
 WORKDIR /app/restaurant-service
-RUN mvn clean package -DskipTests
+RUN mvn clean install -DskipTests
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine

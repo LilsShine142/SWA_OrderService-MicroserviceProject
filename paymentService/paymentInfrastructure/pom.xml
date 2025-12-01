@@ -48,6 +48,13 @@
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
 
+		<!-- Common Messaging for shared DTOs -->
+		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>common-messaging</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 		<!-- Spring Boot Test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

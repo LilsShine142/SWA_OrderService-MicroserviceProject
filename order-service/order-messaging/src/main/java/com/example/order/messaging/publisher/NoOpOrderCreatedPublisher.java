@@ -15,8 +15,6 @@ import org.springframework.stereotype.Component;
  */
 // @Component  // Disabled - using KafkaOrderCreatedPublisher instead
 public class NoOpOrderCreatedPublisher implements OrderCreatedPaymentRequestPublisher {
-//                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//                                              Bây giờ Java mới biết interface này là gì
 
     @Override
     public void publish(OrderCreatedEvent orderCreatedEvent) {

@@ -12,7 +12,7 @@ COPY paymentService /app/paymentService
 
 # Build payment-service
 WORKDIR /app/paymentService
-RUN mvn clean package -DskipTests
+RUN mvn clean install -DskipTests
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine

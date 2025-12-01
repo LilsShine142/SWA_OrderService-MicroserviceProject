@@ -12,7 +12,7 @@ COPY order-service /app/order-service
 
 # Build order-service
 WORKDIR /app/order-service
-RUN mvn clean package -DskipTests
+RUN mvn clean install -DskipTests
 
 # Runtime stage
 FROM eclipse-temurin:23-jre-alpine
