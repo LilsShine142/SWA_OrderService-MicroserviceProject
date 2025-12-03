@@ -13,7 +13,6 @@ public class OrderCreatedEvent {
     private UUID orderId;
     private UUID customerId;
     private UUID restaurantId;
-    private UUID sagaId;
     private BigDecimal totalAmount;
     private List<OrderItemDto> items;
 

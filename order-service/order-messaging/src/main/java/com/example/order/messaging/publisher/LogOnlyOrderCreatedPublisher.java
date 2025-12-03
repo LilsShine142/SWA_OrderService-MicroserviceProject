@@ -6,6 +6,7 @@ import com.example.order.application.ports.output.publisher.OrderCreatedPaymentR
 import com.example.order.domain.core.event.OrderCreatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,7 +16,8 @@ import org.springframework.stereotype.Component;
  * NOTE: This is now disabled in favor of KafkaOrderCreatedPublisher.
  * Remove @Component to disable this implementation.
  */
-// @Component  // Disabled - using KafkaOrderCreatedPublisher instead
+@Component
+@Qualifier("logOnlyOrderCreatedPublisher")
 public class LogOnlyOrderCreatedPublisher implements OrderCreatedPaymentRequestPublisher {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogOnlyOrderCreatedPublisher.class);

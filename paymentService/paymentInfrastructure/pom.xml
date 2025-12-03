@@ -24,10 +24,6 @@
 			<groupId>com.example</groupId>
 			<artifactId>paymentDomain</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.example</groupId>
-			<artifactId>paymentApplication</artifactId>
-		</dependency>
 
 		<!-- Spring Data JPA - Cho database access -->
 		<dependency>
@@ -86,6 +82,10 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>paymentApplication</artifactId>
 		</dependency>
 
 	</dependencies>

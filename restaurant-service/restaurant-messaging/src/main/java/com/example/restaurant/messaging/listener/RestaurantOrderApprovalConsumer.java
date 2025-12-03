@@ -1,5 +1,6 @@
 package com.example.restaurant.messaging.listener;
 
+import com.example.common_messaging.dto.event.OrderApprovedEvent;
 import com.example.common_messaging.dto.event.OrderCreatedEvent;
 import com.example.common_messaging.dto.event.OrderRejectedEvent;
 import com.example.restaurant.application.dto.request.ApproveOrderCommand;
@@ -30,7 +31,7 @@ public class RestaurantOrderApprovalConsumer {
             ApproveOrderCommand command = ApproveOrderCommand.builder()
                     .orderId(orderEvent.getOrderId())
                     .restaurantId(orderEvent.getRestaurantId())
-                    .sagaId(orderEvent.getSagaId())
+//                    .sagaId(orderEvent.getSagaId())
                     .items(orderEvent.getItems().stream()
                             .map(item -> new ApproveOrderCommand.OrderItemDto(
                                     item.getProductId(),
@@ -43,6 +44,22 @@ public class RestaurantOrderApprovalConsumer {
             restaurantService.approveOrder(command);
             System.out.println("Duyệt đơn thành công: orderId=" + orderEvent.getOrderId());
 
+            // Publish OrderApprovedEvent
+            OrderApprovedEvent approvedEvent = OrderApprovedEvent.builder()
+                    .orderId(orderEvent.getOrderId())
+                    .restaurantId(orderEvent.getRestaurantId())
+                    .items(orderEvent.getItems().stream()
+                            .map(item -> OrderApprovedEvent.OrderItemDto.builder()
+                                    .productId(item.getProductId())
+                                    .productName(item.getProductName())
+                                    .quantity(item.getQuantity())
+                                    .price(item.getPrice())
+                                    .build())
+                            .collect(Collectors.toList()))
+                    .build();
+            kafkaTemplate.send("order-approved", approvedEvent);
+            System.out.println("Đã publish OrderApprovedEvent: orderId=" + orderEvent.getOrderId());
+
         } catch (Exception e) {
             System.out.println("Lỗi duyệt đơn orderId=" + orderEvent.getOrderId() + ": " + e.getMessage());
             publishCompensationEvent(orderEvent, e.getMessage());
@@ -53,7 +70,7 @@ public class RestaurantOrderApprovalConsumer {
         try {
             OrderRejectedEvent compensationEvent = OrderRejectedEvent.builder()
                     .orderId(event.getOrderId())
-                    .sagaId(event.getSagaId())
+//                    .sagaId(event.getSagaId())
                     .restaurantId(event.getRestaurantId())
                     .reason(reason)
                     .build();

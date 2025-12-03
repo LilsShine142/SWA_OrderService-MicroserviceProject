@@ -12,9 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.UUID;
-
 /**
  * REST Controller cho Restaurant Service.
  */
@@ -33,10 +30,8 @@ public class RestaurantController {
      */
     @Operation(summary = "Duyệt đơn hàng")
     @ApiResponse(responseCode = "200", description = "Order approved successfully")
-    @PostMapping("/{restaurantId}/orders/{orderId}/approve")
+    @PostMapping("/approve")
     public ResponseEntity<OrderApprovalResponse> approveOrder(
-            @PathVariable UUID restaurantId,
-            @PathVariable UUID orderId,
             @RequestBody @Valid ApproveOrderCommand command) {
 
         OrderApprovalResponse response = restaurantApplicationService.approveOrder(command);
@@ -48,15 +43,13 @@ public class RestaurantController {
      */
     @Operation(summary = "Từ chối đơn hàng")
     @ApiResponse(responseCode = "200", description = "Order rejected successfully")
-    @PostMapping("/{restaurantId}/orders/{orderId}/reject")
+    @PostMapping("/reject")
     public ResponseEntity<Void> rejectOrder(
-            @PathVariable UUID restaurantId,
-            @PathVariable UUID orderId,
             @RequestBody @Valid RejectOrderCommand command) {
 
-        log.info("Nhận yêu cầu từ chối đơn: orderId={}, reason={}", orderId, command.getReason());
+        log.info("Nhận yêu cầu từ chối đơn: orderId={}, reason={}", command.getOrderId(), command.getReason());
 
-        restaurantApplicationService.rejectOrder(orderId, command.getReason());
+        restaurantApplicationService.rejectOrder(command);
 
         return ResponseEntity.ok().build();
     }

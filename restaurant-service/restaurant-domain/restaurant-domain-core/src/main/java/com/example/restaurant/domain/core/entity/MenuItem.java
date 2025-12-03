@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 
 @Getter
 @Builder
@@ -19,8 +20,8 @@ public class MenuItem {
     private final String imageUrl;
     private final Money price;
     private final boolean available;
-    private final Instant createdAt;
-    private final Instant updatedAt;
+    private final ZonedDateTime createdAt;
+    private final ZonedDateTime updatedAt;
 
     public boolean isAvailable() {
         return available && price != null && price.isGreaterThanZero();

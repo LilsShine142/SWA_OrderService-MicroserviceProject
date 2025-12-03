@@ -1,7 +1,10 @@
 package com.example.restaurant.messaging.config;
 
+import com.example.restaurant.domain.core.event.PaymentCompletedEvent;
+import com.example.restaurant.domain.core.event.PaymentFailedEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -15,22 +18,51 @@ import java.util.Map;
 @Configuration
 public class KafkaConsumerConfig {
 
-    @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
+
+    private Map<String, Object> baseProps(String groupId) {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "restaurant-group");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.example.common_messaging.dto.event,com.example.restaurant.domain.core.event");
-        return new DefaultKafkaConsumerFactory<>(props);
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        return props;
+    }
+
+    // PaymentCompletedEvent
+    @Bean
+    public ConsumerFactory<String, PaymentCompletedEvent> paymentCompletedConsumerFactory() {
+        return new DefaultKafkaConsumerFactory<>(
+                baseProps("restaurant-service-payment-completed"),
+                new StringDeserializer(),
+                new JsonDeserializer<>(PaymentCompletedEvent.class, false)
+        );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> paymentCompletedKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(paymentCompletedConsumerFactory());
+        return factory;
+    }
+
+    // PaymentFailedEvent
+    @Bean
+    public ConsumerFactory<String, PaymentFailedEvent> paymentFailedConsumerFactory() {
+        return new DefaultKafkaConsumerFactory<>(
+                baseProps("restaurant-service-payment-failed"),
+                new StringDeserializer(),
+                new JsonDeserializer<>(PaymentFailedEvent.class, false)
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentFailedEvent> paymentFailedKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentFailedEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(paymentFailedConsumerFactory());
         return factory;
     }
 }

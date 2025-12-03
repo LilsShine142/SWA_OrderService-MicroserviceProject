@@ -45,49 +45,11 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     }
 
     @Override
-    public Optional<Payment> findById(@NotNull UUID paymentId) {
-        return paymentJpaRepository
-                .findById(paymentId) // paymentId.getValue() là UUID
-                .map    (paymentPersistenceDataMapper::paymentEntityToPayment);
-    }
-
-    @Override
-    public void deleteById(PaymentId paymentId) {
-        paymentJpaRepository.deleteById(paymentId.value());
-    }
-
-    @Override
-    public Payment update(Payment payment) {
-        // 1. Chuyển Domain -> JPA Entity
-        PaymentEntity paymentEntity = paymentPersistenceDataMapper.paymentToPaymentEntity(payment);
-
-        // 2. Lưu bằng Spring Data JPA (save sẽ update nếu entity có ID)
-        PaymentEntity updatedEntity = paymentJpaRepository.save(paymentEntity);
-
-        // 3. Chuyển JPA Entity -> Domain
-        return paymentPersistenceDataMapper.paymentEntityToPayment(updatedEntity);
-    }
-
-    @Override
-    public Optional<Payment> findByOrderId(OrderId orderId) {
-        return paymentJpaRepository
-                .findByOrderId(orderId.value())
+    public Optional<Payment> findById(PaymentId paymentId) {
+        Optional <PaymentEntity> paymentEntityOptional = paymentJpaRepository.findById(paymentId.value());
+        return paymentEntityOptional
                 .map(paymentPersistenceDataMapper::paymentEntityToPayment);
     }
 
-    @Override
-    public List<Payment> findBySagaId(UUID sagaId) {
-        return paymentJpaRepository
-                .findBySagaId(sagaId)
-                .stream()
-                .map(paymentPersistenceDataMapper::paymentEntityToPayment)
-                .toList();
-    }
-
-    @Override
-    public List<Payment> findAll() {
-        return paymentJpaRepository.findAll().stream()
-                .map(paymentPersistenceDataMapper::paymentEntityToPayment)
-                .collect(java.util.stream.Collectors.toList());
-    }
 }
+

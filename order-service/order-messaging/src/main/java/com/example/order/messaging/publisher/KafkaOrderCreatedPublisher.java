@@ -62,7 +62,6 @@ public class KafkaOrderCreatedPublisher implements OrderCreatedPaymentRequestPub
                 .orderId(order.getId().value())
                 .customerId(order.getCustomerId().value())
                 .restaurantId(order.getRestaurantId().value())
-                .sagaId(sagaId)
                 .totalAmount(order.getPrice().getAmount())
                 .items(itemDtos)
                 .build();

@@ -11,7 +11,7 @@ import java.util.UUID;
 public class OrderApprovalResponse {
     private UUID approvalId;
     private UUID orderId;
-    private UUID trackingId;
+//    private UUID trackingId;
     private String status; // APPROVED / REJECTED
     private String message;
 }
