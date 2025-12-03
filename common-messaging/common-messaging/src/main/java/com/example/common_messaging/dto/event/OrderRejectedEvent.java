@@ -5,15 +5,10 @@ import lombok.Data;
 
 import java.util.UUID;
 
-/**
- * Integration Event (DTO) – Gửi từ Restaurant → Order
- * khi từ chối đơn → kích hoạt compensation.
- */
-@Data
 @Builder
+@Data
 public class OrderRejectedEvent {
     private UUID orderId;
-    private UUID sagaId;
     private UUID restaurantId;
     private String reason;
 }

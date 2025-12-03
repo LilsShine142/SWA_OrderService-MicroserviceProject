@@ -7,12 +7,11 @@ import java.util.UUID;
 public record OrderApprovalRequest(
         UUID orderId,
         UUID restaurantId,
-        UUID trackingId,
-        UUID sagaId,
+//        UUID trackingId,
         List<OrderItemDto> items
 ) {
     public OrderApprovalRequest {
-        if (orderId == null || sagaId == null) {
+        if (orderId == null) {
             throw new IllegalArgumentException("orderId và sagaId là bắt buộc");
         }
     }

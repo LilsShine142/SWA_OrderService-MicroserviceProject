@@ -6,8 +6,8 @@ import java.util.UUID;
 public abstract class BaseEntity<T> {
     private T id;
 
-    public UUID getId() {
-        return (UUID) id;
+    public T getId() {
+        return id;
     }
 
     public void setId(T id) {

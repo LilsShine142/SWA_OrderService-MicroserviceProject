@@ -13,15 +13,11 @@ import java.util.UUID;
 @Repository
 public interface OrderApprovalJpaRepository extends JpaRepository<OrderApprovalEntity, UUID> {
 
-    Optional<OrderApprovalEntity> findBySagaId(UUID sagaId);
-
     Optional<OrderApprovalEntity> findByOrderId(UUID orderId);
 
     @Query("SELECT oa FROM OrderApprovalEntity oa WHERE oa.orderId = :orderId AND oa.restaurantId = :restaurantId")
     Optional<OrderApprovalEntity> findByOrderIdAndRestaurantId(@Param("orderId") UUID orderId, @Param("restaurantId") UUID restaurantId);
 
-    List<OrderApprovalEntity> findBySagaStatus(com.example.restaurant.domain.core.valueobject.SagaStatus sagaStatus);
-
-    @Query("SELECT oa FROM OrderApprovalEntity oa WHERE oa.nextRetryAt < CURRENT_TIMESTAMP AND oa.sagaStatus = 'IN_PROGRESS'")
-    List<OrderApprovalEntity> findPendingRetries();
+//    @Query("SELECT oa FROM OrderApprovalEntity oa WHERE oa.nextRetryAt < CURRENT_TIMESTAMP AND oa.sagaStatus = 'IN_PROGRESS'")
+//    List<OrderApprovalEntity> findPendingRetries();
 }

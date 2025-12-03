@@ -22,9 +22,6 @@ public class ApproveOrderCommand {
     @NotNull(message = "restaurantId không được null")
     private UUID restaurantId;
 
-    @NotNull(message = "sagaId không được null")
-    private UUID sagaId;
-
     @NotEmpty(message = "items không được rỗng")
     @Size(min = 1, message = "Phải có ít nhất 1 món")
     private List<@Valid OrderItemDto> items;

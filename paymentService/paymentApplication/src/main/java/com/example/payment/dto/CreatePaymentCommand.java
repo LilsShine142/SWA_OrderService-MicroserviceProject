@@ -1,15 +1,20 @@
 package com.example.payment.dto;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
  * DTO (Command) để tạo thanh toán.
  */
-public record CreatePaymentCommand(
-        @NotNull UUID orderId,
-        @NotNull UUID customerId,
-        @NotNull @Positive BigDecimal amount
-) {}
+@Getter
+@Setter
+public class CreatePaymentCommand {
+        private UUID orderId;
+        private UUID customerId;
+        private BigDecimal amount;
+        private LocalDateTime createdAt;
+}

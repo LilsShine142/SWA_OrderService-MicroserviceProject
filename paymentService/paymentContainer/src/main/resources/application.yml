@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8082
 
 spring:
   application:
@@ -7,7 +7,7 @@ spring:
 
   # Database configuration (PostgreSQL)
   datasource:
-    url: jdbc:postgresql://localhost:5432/payment_service
+    url: jdbc:postgresql://localhost:5434/payment_service
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: 123456
@@ -22,6 +22,8 @@ spring:
           format_sql: true
           dialect: org.hibernate.dialect.PostgreSQLDialect
           default_schema: payment
+          hbm2ddl:
+            create_schemas: true
 
 
   # Kafka configuration
@@ -47,6 +49,6 @@ vnp:
     url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
   tmnCode: GS884LF7
   hashSecret: 3OZWA90359NGJYQHBANJRV2AD5ZRUDW2
-  returnUrl: http://localhost:8080/
+  returnUrl: http://localhost:8082/
   refund:
     url: https://sandbox.vnpayment.vn/merchant_webapi/merchant.html

@@ -7,10 +7,6 @@ import com.example.payment.entity.Payment;
  */
 public class PaymentCancelledEvent extends PaymentDomainEvent<Payment> {
 
-    /**
-     * Hàm khởi tạo này nhận Payment (payload)
-     * @param payment Đối tượng Payment đại diện cho sự kiện
-     */
     public PaymentCancelledEvent(Payment payment) {
         super(payment);
     }

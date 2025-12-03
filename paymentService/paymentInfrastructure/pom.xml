@@ -24,10 +24,6 @@
 			<groupId>com.example</groupId>
 			<artifactId>paymentDomain</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.example</groupId>
-			<artifactId>paymentApplication</artifactId>
-		</dependency>
 
 		<!-- Spring Data JPA - Cho database access -->
 		<dependency>
@@ -87,7 +83,22 @@
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>paymentApplication</artifactId>
+		</dependency>
 
 	</dependencies>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

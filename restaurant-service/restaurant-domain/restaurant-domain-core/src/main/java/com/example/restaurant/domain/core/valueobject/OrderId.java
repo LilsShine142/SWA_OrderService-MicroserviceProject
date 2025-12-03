@@ -11,8 +11,8 @@ public class OrderId {
         this.value = value;
     }
 
-    public static OrderId of(UUID value) {
-        return new OrderId(value);
+    public static UUID of(UUID value) {
+        return new OrderId(value).getValue();
     }
 
     public static OrderId generate() {

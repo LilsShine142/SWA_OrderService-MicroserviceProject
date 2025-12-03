@@ -6,62 +6,47 @@ import com.example.payment.valueobject.*;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
+import java.util.UUID;
 
 /**
  * Mapper chuyển đổi giữa Payment (Domain) và PaymentEntity (Infrastructure)
  */
 @Component
 public class PaymentPersistenceDataMapper {
-
     /**
      * Chuyển từ Domain Payment sang PaymentEntity (để lưu vào DB)
      */
     public PaymentEntity paymentToPaymentEntity(Payment payment) {
-        return new PaymentEntity(
-                payment.getId(),
-                payment.getOrderId().value(),
-                payment.getCustomerId().value(),
-                payment.getAmount(),
-                payment.getPaymentStatus(),
-                payment.getTransactionId(),
-                payment.getFailureReason(),
-                payment.getCreatedAt() != null ?
-                        payment.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDateTime() : null,
-                payment.getUpdatedAt() != null ?
-                        payment.getUpdatedAt().atZone(ZoneId.systemDefault()).toLocalDateTime() : null,
-                payment.getTransactionStartAt(),
-                payment.getTransactionEndAt(),
-                payment.getSagaId(),
-                payment.getSagaStep(),
-                payment.getSagaStatus(),
-                payment.getAttemptCount(),
-                payment.getNextRetryAt()
-        );
+        PaymentEntity entity = new PaymentEntity();
+        entity.setId(payment.getId().value());
+        entity.setOrderId(payment.getOrderId().value());
+        entity.setCustomerId(payment.getCustomerId().value());
+        entity.setAmount(payment.getPrice().getAmount());
+        entity.setPaymentStatus(PaymentStatus.valueOf(payment.getPaymentStatus().name())); // STRING since no ENUM in DB
+        entity.setTransactionId(payment.getTransactionId());
+        entity.setFailureReason(payment.getFailureReason());
+        entity.setCreatedAt(payment.getCreatedAt());
+        entity.setUpdatedAt(payment.getUpdatedAt());
+        entity.setTransactionStartAt(payment.getTransactionStartAt());
+        entity.setTransactionEndAt(payment.getTransactionEndAt());
+        return entity;
     }
 
-    /**
-     * Chuyển từ PaymentEntity (DB) sang Domain Payment
-     */
     public Payment paymentEntityToPayment(PaymentEntity entity) {
-        return Payment.builder()
-                .paymentId(new PaymentId(entity.getId()))
+        Payment payment = Payment.builder()
                 .orderId(new OrderId(entity.getOrderId()))
                 .customerId(new CustomerId(entity.getCustomerId()))
-                .amount(entity.getAmount())
-                .paymentStatus(entity.getPaymentStatus())
+                .price(new Money(entity.getAmount()))
+                .paymentStatus(PaymentStatus.valueOf(String.valueOf(entity.getPaymentStatus())))
                 .transactionId(entity.getTransactionId())
                 .failureReason(entity.getFailureReason())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .transactionStartAt(entity.getTransactionStartAt())
                 .transactionEndAt(entity.getTransactionEndAt())
-                .createdAt(entity.getCreatedAt() != null ?
-                        entity.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant() : null)
-                .updatedAt(entity.getUpdatedAt() != null ?
-                        entity.getUpdatedAt().atZone(ZoneId.systemDefault()).toInstant() : null)
-                .sagaId(entity.getSagaId())
-                .sagaStep(entity.getSagaStep())
-                .sagaStatus(entity.getSagaStatus())
-                .attemptCount(entity.getAttemptCount())
-                .nextRetryAt(entity.getNextRetryAt())
                 .build();
+        // 2. Set trường của cha (ID) thủ công
+        payment.setId(new PaymentId(entity.getId()));
+        return payment;
     }
 }

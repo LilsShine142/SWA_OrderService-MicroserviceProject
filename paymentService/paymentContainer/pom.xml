@@ -47,6 +47,12 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>paymentInfrastructure</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -54,9 +60,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<mainClass>com.example.payment.PaymentServiceApplication</mainClass>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

@@ -8,7 +8,7 @@ import com.example.order.domain.core.valueobject.TrackingId;
 import com.example.order.application.ports.output.OrderRepository;
 import com.example.order.dataaccess.entity.OrderEntity;
 import com.example.order.dataaccess.mapper.OrderDataaccessMapper;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
@@ -17,7 +17,7 @@ import java.util.Optional;
  * Triển khai Output Port 'OrderRepository'
  * Vị trí: order-dataaccess/adapter/
  */
-@Component // Báo cho Spring biết đây là Bean
+@Repository // Báo cho Spring biết đây là Bean
 public class OrderRepositoryImpl implements OrderRepository {
 
     private final OrderJpaRepository orderJpaRepository;

@@ -25,8 +25,8 @@ public class MenuItemDataAccessMapper {
                 .imageUrl(entity.getImageUrl())
                 .price(new Money(entity.getPrice()))
                 .available(entity.getAvailable())
-                .createdAt(toInstant(entity.getCreatedAt()))
-                .updatedAt(toInstant(entity.getUpdatedAt()))
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 
@@ -43,16 +43,8 @@ public class MenuItemDataAccessMapper {
                 .imageUrl(menuItem.getImageUrl())
                 .price(menuItem.getPrice().getAmount())
                 .available(menuItem.isAvailable())
-                .createdAt(toOffsetDateTime(menuItem.getCreatedAt()))
-                .updatedAt(toOffsetDateTime(menuItem.getUpdatedAt()))
+                .createdAt(menuItem.getCreatedAt())
+//                .updatedAt(MenuItemEntity.onUpdate)
                 .build();
-    }
-
-    private Instant toInstant(OffsetDateTime offsetDateTime) {
-        return offsetDateTime != null ? offsetDateTime.toInstant() : null;
-    }
-
-    private OffsetDateTime toOffsetDateTime(Instant instant) {
-        return instant != null ? OffsetDateTime.ofInstant(instant, ZoneOffset.UTC) : null;
     }
 }

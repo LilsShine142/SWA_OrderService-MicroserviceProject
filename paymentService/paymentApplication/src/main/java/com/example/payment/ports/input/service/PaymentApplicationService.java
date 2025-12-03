@@ -1,9 +1,11 @@
 package com.example.payment.ports.input.service;
 
-import com.example.payment.dto.*;
+import com.example.payment.dto.CreatePaymentCommand;
+import com.example.payment.dto.OrderEvent;
+import com.example.payment.dto.PaymentResponse;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Đây là Input Port cho Payment Application Service
@@ -14,25 +16,17 @@ public interface PaymentApplicationService {
     /**
      * Tạo một giao dịch thanh toán mới và generate VNPay URL
      */
-    CreatePaymentResponse createPayment(CreatePaymentCommand command);
-
-    /**
-     * Hủy một giao dịch thanh toán
-     */
-    CancelPaymentResponse cancelPayment(CancelPaymentCommand command);
-
-    /**
-     * Theo dõi trạng thái của một giao dịch thanh toán
-     */
-    TrackPaymentResponse trackPayment(TrackPaymentQuery query);
+    PaymentResponse processPayment(CreatePaymentCommand request);
 
     /**
      * Xử lý VNPay callback/IPN (sandbox)
      */
-    ResponseData handleVnpayCallback(Map<String, String> params);
+    void handleCallback(Map<String, String> params);
 
     /**
      * Refund Payment (sandbox, SAGA compensation)
      */
-    ResponseData refundPayment(RefundPaymentCommand command) throws UnsupportedEncodingException;
+    void refundPayment(UUID paymentId, String transactionNo, String reason);
+
+    void processPaymentFromEvent(OrderEvent event);
 }

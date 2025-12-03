@@ -15,6 +15,7 @@ import com.example.order.application.dto.*;
 import com.example.order.application.mapper.OrderDataMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +46,7 @@ public class OrderApplicationServiceImpl implements OrderApplicationService {
     // --- CONSTRUCTOR INJECTION ---
     // (Giống như "public OrderService(OrderRepository repository)")
     public OrderApplicationServiceImpl(OrderRepository orderRepository,
-                                       OrderCreatedPaymentRequestPublisher orderCreatedPublisher,
+                                       @Qualifier("logOnlyOrderCreatedPublisher") OrderCreatedPaymentRequestPublisher orderCreatedPublisher,
                                        OrderDataMapper orderDataMapper,
                                        OrderDomainService orderDomainService) {
         this.orderRepository = orderRepository;
