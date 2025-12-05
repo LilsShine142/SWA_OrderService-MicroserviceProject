@@ -40,16 +40,16 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<CreateOrderResponse> createOrder(
             @Valid @RequestBody CreateOrderCommand createOrderCommand) { // [cite: 247]
-        log.info("Creating order for customer: {} at restaurant: {}",
-                createOrderCommand.customerId(),
-                createOrderCommand.restaurantId()); // [cite: 249-251]
+       // log.info("Creating order for customer: {} at restaurant: {}",
+         //       createOrderCommand.customerId(),
+            //    createOrderCommand.restaurantId()); // [cite: 249-251]
 
         // Gọi vào Application Layer (Input Port) [cite: 252-254]
         CreateOrderResponse response =
                 orderApplicationService.createOrder(createOrderCommand);
 
-        log.info("Order created with tracking id: {}",
-                response.orderTrackingId()); // [cite: 256-257]
+       // log.info("Order created with tracking id: {}",
+           //     response.orderTrackingId()); // [cite: 256-257]
 
         // Trả về HTTP 201 Created [cite: 258-262]
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -64,13 +64,13 @@ public class OrderController {
 
         // Tạo Query DTO
         TrackOrderQuery trackOrderQuery = new TrackOrderQuery(trackingId);
-        log.info("Tracking order with tracking id: {}", trackingId);
+       // log.info("Tracking order with tracking id: {}", trackingId);
 
         // Gọi vào Application Layer
         TrackOrderResponse response = orderApplicationService.trackOrder(trackOrderQuery);
 
-        log.info("Returning order status: {} for tracking id: {}",
-                response.orderStatus(), response.orderTrackingId());
+       // log.info("Returning order status: {} for tracking id: {}",
+               // response.orderStatus(), response.orderTrackingId());
 
         // Trả về HTTP 200 OK
         return ResponseEntity.ok(response);
