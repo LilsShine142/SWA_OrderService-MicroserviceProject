@@ -3,9 +3,10 @@ package com.example.order.domain.core.service;
 import com.example.order.domain.core.entity.Order;
 import com.example.order.domain.core.event.OrderCreatedEvent;
 import com.example.order.domain.core.exception.OrderDomainException;
+import org.springframework.stereotype.Service;
 
 
-
+@Service
 public class OrderDomainServiceImpl implements OrderDomainService {
 
     @Override

@@ -1,0 +1,39 @@
+server:
+  port: 8081 # Cổng mặc định của API Gateway
+
+eureka:
+  client:
+    serviceUrl:
+      # Chắc chắn Eureka Server đang chạy trên cổng 8761
+      defaultZone: http://localhost:8671/eureka
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        # 1. Định tuyến cho Order Service (order-service)
+        - id: order-service
+          # URI: lb:// Tên service viết HOA trên Eureka
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/orders/** # Định tuyến tất cả yêu cầu bắt đầu bằng /api/orders/
+            # Bạn có thể thêm bộ lọc (Filters) như AuthenticationFilter tại đây nếu cần
+            # filters:
+            # - AuthenticationFilter
+
+        # 2. Định tuyến cho Payment Service (paymentService)
+        - id: payment-service
+          # Lưu ý: Đảm bảo tên service đăng ký với Eureka là PAYMENT-SERVICE
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/payments/** # Định tuyến tất cả yêu cầu bắt đầu bằng /api/payments/
+
+        # 3. Định tuyến cho Restaurant Service (restaurant-service)
+        - id: restaurant-service
+          uri: lb://RESTAURANT-SERVICE
+          predicates:
+            - Path=/api/restaurants/** # Định tuyến tất cả yêu cầu bắt đầu bằng /api/restaurants/
+
+# --- Các cấu hình service mẫu cũ đã được loại bỏ ---

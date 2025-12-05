@@ -52,3 +52,17 @@ vnp:
   returnUrl: http://localhost:8082/
   refund:
     url: https://sandbox.vnpayment.vn/merchant_webapi/merchant.html
+eureka:
+  client:
+    serviceUrl:
+      # Định nghĩa URL của Eureka Server
+      defaultZone: http://localhost:8671/eureka/
+  instance:
+    # Tên host cho việc đăng ký
+    hostname: localhost
+    # Không ưu tiên địa chỉ IP hơn hostname
+    prefer-ip-address: false
+    # Định dạng ID instance khi đăng ký với Eureka (ví dụ: order-service:8181)
+    instance-id: ${spring.application.name}:${server.port}
+
+-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

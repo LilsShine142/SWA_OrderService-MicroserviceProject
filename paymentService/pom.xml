@@ -27,6 +27,7 @@
 
 	<properties>
 		<java.version>21</java.version>
+		<spring-cloud.version>2023.0.3</spring-cloud.version>
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>21</maven.compiler.target>
 	</properties>
@@ -53,7 +54,16 @@
 				<artifactId>paymentContainer</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-		</dependencies>
+
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-dependencies</artifactId>
+					<version>${spring-cloud.version}</version>
+					<type>pom</type>
+					<scope>import</scope>
+				</dependency>
+			</dependencies>
+
 	</dependencyManagement>
 
 	<build>
