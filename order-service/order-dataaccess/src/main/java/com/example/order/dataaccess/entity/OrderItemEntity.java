@@ -10,7 +10,7 @@ import java.util.Objects;
  * Vị trí: order-dataaccess/entity/
  */
 @Entity
-@Table(name = "order_items", schema = "order")
+@Table(name = "order_items", schema = "\"order\"")
 @IdClass(OrderItemEntityId.class) // Báo cho JPA biết dùng lớp Khóa Composite
 public class OrderItemEntity {
 
@@ -21,6 +21,7 @@ public class OrderItemEntity {
     // Vừa là @Id, vừa là Foreign Key (Quan hệ Nhiều-Một)
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("order")
     @JoinColumn(name = "order_id") // Tên cột trong CSDL [cite: 508, 511]
     private OrderEntity order;
 

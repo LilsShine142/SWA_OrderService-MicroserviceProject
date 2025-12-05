@@ -17,10 +17,12 @@
 	<name>orderService-parent</name>
 	<description>Parent POM for Order Service</description>
 	<properties>
+
 		<java.version>23</java.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
 	</properties>
 
 	<modules>

@@ -1,0 +1,54 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: paymentService
+
+  # Database configuration (PostgreSQL)
+  datasource:
+    url: jdbc:postgresql://localhost:5434/payment_service
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: 123456
+
+  # JPA configuration
+    jpa:
+      show-sql: true
+      hibernate:
+        ddl-auto: update
+      properties:
+        hibernate:
+          format_sql: true
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+          default_schema: payment
+          hbm2ddl:
+            create_schemas: true
+
+
+  # Kafka configuration
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: payment-service-group
+      auto-offset-reset: earliest
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+logging:
+  level:
+    com.example.payment: INFO
+    org.springframework.web: INFO
+    org.apache.kafka: ERROR
+    org.springframework.kafka: ERROR
+
+# Cấu hình thanh toán VNPAY
+vnp:
+  pay:
+    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  tmnCode: GS884LF7
+  hashSecret: 3OZWA90359NGJYQHBANJRV2AD5ZRUDW2
+  returnUrl: http://localhost:8082/
+  refund:
+    url: https://sandbox.vnpayment.vn/merchant_webapi/merchant.html
