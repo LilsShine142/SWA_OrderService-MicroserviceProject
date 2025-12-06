@@ -2,10 +2,9 @@ package com.example.restaurant.container.rest;
 
 import com.example.restaurant.application.dto.request.ApproveOrderCommand;
 import com.example.restaurant.application.dto.request.RejectOrderCommand;
+import com.example.restaurant.application.dto.response.ApiResponse;
 import com.example.restaurant.application.dto.response.OrderApprovalResponse;
 import com.example.restaurant.application.ports.input.service.RestaurantApplicationService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,36 +27,40 @@ public class RestaurantController {
      * Nhận từ Order Service qua Kafka (OrderCreatedEvent)
      * Nhưng cũng cung cấp API để test thủ công
      */
-    @Operation(summary = "Duyệt đơn hàng")
-    @ApiResponse(responseCode = "200", description = "Order approved successfully")
     @PostMapping("/approve")
-    public ResponseEntity<OrderApprovalResponse> approveOrder(
+    public ResponseEntity<ApiResponse<OrderApprovalResponse>> approveOrder(
             @RequestBody @Valid ApproveOrderCommand command) {
 
         OrderApprovalResponse response = restaurantApplicationService.approveOrder(command);
-        return ResponseEntity.ok(response);
+
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(ApiResponse.success("Thành công", response));
+        } else {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.fail(response.getMessage()));
+        }
     }
 
     /**
      * Từ chối đơn hàng – SAGA Compensation
      */
-    @Operation(summary = "Từ chối đơn hàng")
-    @ApiResponse(responseCode = "200", description = "Order rejected successfully")
     @PostMapping("/reject")
-    public ResponseEntity<Void> rejectOrder(
+    public ResponseEntity<ApiResponse<OrderApprovalResponse>> rejectOrder(
             @RequestBody @Valid RejectOrderCommand command) {
 
-        log.info("Nhận yêu cầu từ chối đơn: orderId={}, reason={}", command.getOrderId(), command.getReason());
+        OrderApprovalResponse response = restaurantApplicationService.rejectOrder(command);
 
-        restaurantApplicationService.rejectOrder(command);
-
-        return ResponseEntity.ok().build();
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(ApiResponse.success("Thành công", response));
+        } else {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.fail(response.getMessage()));
+        }
     }
 
     /**
      * API test call api
      */
-    @Operation(summary = "Health check")
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Restaurant Service is UP");

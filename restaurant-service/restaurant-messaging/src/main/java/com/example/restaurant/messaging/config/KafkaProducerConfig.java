@@ -1,5 +1,6 @@
 package com.example.restaurant.messaging.config;
 
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
@@ -7,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
@@ -27,5 +29,15 @@ public class KafkaProducerConfig {
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
+    }
+
+    @Bean
+    public NewTopic orderApprovedTopic() {
+        return new NewTopic("order-approved", 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic orderRejectedTopic() {
+        return new NewTopic("order-rejected", 1, (short) 1);
     }
 }

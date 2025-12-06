@@ -14,4 +14,5 @@ public class OrderApprovalResponse {
 //    private UUID trackingId;
     private String status; // APPROVED / REJECTED
     private String message;
+    private boolean success;
 }

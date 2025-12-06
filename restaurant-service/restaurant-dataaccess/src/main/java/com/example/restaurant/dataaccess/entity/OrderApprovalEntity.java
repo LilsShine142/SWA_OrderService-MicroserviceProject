@@ -21,13 +21,13 @@ import java.util.UUID;
 public class OrderApprovalEntity {
 
     @Id
-    @Column(columnDefinition = "BINARY(16)")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "order_id", nullable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "order_id", nullable = false)
     private UUID orderId;
 
-    @Column(name = "restaurant_id", nullable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "restaurant_id", nullable = false)
     private UUID restaurantId;
 
     @Enumerated(EnumType.STRING)

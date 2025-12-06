@@ -73,9 +73,23 @@ public class VNPayAdapter implements VNPayOutputPort {
 
     @Override
     public boolean verifyChecksum(Map<String, String> params, String originalHashData, String vnpHashSecret) {
-        if (originalHashData == null) return false;
+        // Build hashData from params, excluding vnp_SecureHash
+        Map<String, String> sortedParams = new TreeMap<>(params);
+        sortedParams.remove("vnp_SecureHash");
 
-        String calculatedHash = new HmacUtils(HmacAlgorithms.HMAC_SHA_512, vnpHashSecret).hmacHex(originalHashData);
+        StringBuilder hashData = new StringBuilder();
+        for (Map.Entry<String, String> param : sortedParams.entrySet()) {
+            if (hashData.length() > 0) {
+                hashData.append('&');
+            }
+            try {
+                hashData.append(param.getKey()).append('=').append(URLEncoder.encode(param.getValue(), StandardCharsets.UTF_8.toString()));
+            } catch (Exception e) {
+                // Handle
+            }
+        }
+
+        String calculatedHash = new HmacUtils(HmacAlgorithms.HMAC_SHA_512, vnpHashSecret).hmacHex(hashData.toString());
         return calculatedHash.equals(params.get("vnp_SecureHash"));
     }
 

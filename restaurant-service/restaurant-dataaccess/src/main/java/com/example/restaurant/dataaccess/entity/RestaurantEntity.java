@@ -14,10 +14,8 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class RestaurantEntity {
     @Id
-    @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Column(name = "name", nullable = false, length = 100)
