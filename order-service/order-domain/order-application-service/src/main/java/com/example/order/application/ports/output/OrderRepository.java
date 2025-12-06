@@ -3,10 +3,10 @@ package com.example.order.application.ports.output;
 
 
 import com.example.order.domain.core.entity.Order;
-import com.example.order.domain.core.valueobject.OrderId;
 import com.example.order.domain.core.valueobject.TrackingId;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * OUTPUT PORT (Cổng Ra) - Giống hệt "Bước 1" trong ảnh
@@ -27,7 +27,7 @@ public interface OrderRepository {
      * Tìm Order bằng ID
      *
      */
-    Optional<Order> findById(OrderId orderId);
+    Optional<Order> findById(UUID orderId);
 
     /**
      * Tìm Order bằng Tracking ID (dựa trên CSDL [cite: 522-523] và Listing 2 [cite: 148])

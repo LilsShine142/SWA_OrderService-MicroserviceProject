@@ -45,7 +45,8 @@ eureka:
   client:
     serviceUrl:
       # Định nghĩa URL của Eureka Server
-      defaultZone: http://localhost:8671/eureka/
+      defaultZone: http://discovery-server:8671/eureka/
+    region: default
   instance:
     # Tên host cho việc đăng ký
     hostname: localhost

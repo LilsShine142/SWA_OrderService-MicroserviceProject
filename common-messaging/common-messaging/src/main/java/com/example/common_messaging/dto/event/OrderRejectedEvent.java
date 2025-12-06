@@ -5,8 +5,8 @@ import lombok.Data;
 
 import java.util.UUID;
 
-@Builder
 @Data
+@Builder
 public class OrderRejectedEvent {
     private UUID orderId;
     private UUID restaurantId;

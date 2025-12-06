@@ -3,17 +3,15 @@ package com.example.order.dataaccess.adapter;
 
 import com.example.order.dataaccess.repository.OrderJpaRepository;
 import com.example.order.domain.core.entity.Order;
-import com.example.order.domain.core.valueobject.OrderId;
 import com.example.order.domain.core.valueobject.TrackingId;
 import com.example.order.application.ports.output.OrderRepository;
 import com.example.order.dataaccess.entity.OrderEntity;
 import com.example.order.dataaccess.mapper.OrderDataaccessMapper;
 
-import org.springframework.stereotype.Component;
-
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * ADAPTER PATTERN (Triển khai "Bước 3")
@@ -46,9 +44,9 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Optional<Order> findById(OrderId orderId) {
+    public Optional<Order> findById(UUID orderId) {
         return orderJpaRepository
-                .findById(orderId.value()) // orderId.value() là UUID
+                .findById(orderId)
                 .map(orderDataAccessMapper::orderEntityToOrder);
     }
 

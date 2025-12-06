@@ -10,7 +10,7 @@ import java.util.Objects;
  * Vị trí: order-dataaccess/entity/
  */
 @Entity
-@Table(name = "\"order_items\"")
+@Table(name = "order_items")
 @IdClass(OrderItemEntityId.class) // Báo cho JPA biết dùng lớp Khóa Composite
 public class OrderItemEntity {
 

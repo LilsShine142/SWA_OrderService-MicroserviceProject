@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-@Builder
 @Data
+@Builder
 public class OrderApprovedEvent {
     private UUID orderId;
     private UUID restaurantId;

@@ -8,8 +8,10 @@ import com.example.order.domain.core.entity.OrderItem;
 import com.example.order.domain.core.valueobject.*;
 import com.example.order.application.dto.CreateOrderResponse;
 import com.example.order.application.dto.TrackOrderResponse;
+import com.example.order.application.dto.UpdateOrderResponse;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -49,11 +51,16 @@ public class OrderDataMapper {
                         .build())
                 .collect(Collectors.toList());
 
+        // Tính tổng tiền từ các item, CÓ THỂ BỎ QUA NẾU DOMAIN XỬ LÝ
+        BigDecimal totalPrice = items.stream()
+                .map(item -> item.getSubTotal().getAmount())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         // 3. Dùng Builder của Order (từ Domain) để tạo đối tượng
         return Order.builder()
                 .customerId(new CustomerId(command.customerId()))
                 .restaurantId(new RestaurantId(command.restaurantId()))
-                .price(new Money(command.price()))
+                .price(new Money(totalPrice))
                 .deliveryAddress(address)
                 .items(items)
                 .build();
@@ -87,6 +94,17 @@ public class OrderDataMapper {
      */
     public CancelOrderResponse orderToCancelOrderResponse(Order order, String message) {
         return new CancelOrderResponse(
+                order.getOrderStatus(),
+                message
+        );
+    }
+
+    /**
+     * Chuyển Domain Entity (Order) -> DTO (UpdateOrderResponse)
+     */
+    public UpdateOrderResponse orderToUpdateOrderResponse(Order order, String message) {
+        return new UpdateOrderResponse(
+                order.getTrackingId().value(),
                 order.getOrderStatus(),
                 message
         );

@@ -15,10 +15,11 @@ public class PaymentKafkaListener {
 
     @KafkaListener(topics = "order-created", groupId = "payment-group")
     public void handleOrderCreated(OrderCreatedEvent event) {
-        CreatePaymentCommand request = new CreatePaymentCommand();
-        request.setOrderId(event.getOrderId());
-        request.setCustomerId(event.getCustomerId());
-        request.setAmount(event.getTotalAmount());
+        CreatePaymentCommand request = CreatePaymentCommand.builder()
+                .orderId(event.getOrderId())
+                .customerId(event.getCustomerId())
+                .amount(event.getTotalAmount())
+                .build();
         paymentApplicationService.processPayment(request);
     }
 

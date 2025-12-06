@@ -1,7 +1,7 @@
 package com.example.restaurant.messaging.listener;
 
 import com.example.common_messaging.dto.event.OrderApprovedEvent;
-import com.example.common_messaging.dto.event.OrderCreatedEvent;
+import com.example.common_messaging.dto.event.OrderPaidEvent;
 import com.example.common_messaging.dto.event.OrderRejectedEvent;
 import com.example.restaurant.application.dto.request.ApproveOrderCommand;
 import com.example.restaurant.application.ports.input.service.RestaurantApplicationService;
@@ -20,12 +20,12 @@ public class RestaurantOrderApprovalConsumer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @KafkaListener(
-            topics = "order-created",
+            topics = "order-paid",
             groupId = "restaurant-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void consumeOrderCreated(OrderCreatedEvent orderEvent) {
-        System.out.println("Nhận OrderCreatedEvent: orderId=" + orderEvent.getOrderId());
+    public void consumeOrderPaid(OrderPaidEvent orderEvent) {
+        System.out.println("Nhận OrderPaidEvent: orderId=" + orderEvent.getOrderId());
 
         try {
             ApproveOrderCommand command = ApproveOrderCommand.builder()
@@ -66,7 +66,7 @@ public class RestaurantOrderApprovalConsumer {
         }
     }
 
-    private void publishCompensationEvent(OrderCreatedEvent event, String reason) {
+    private void publishCompensationEvent(OrderPaidEvent event, String reason) {
         try {
             OrderRejectedEvent compensationEvent = OrderRejectedEvent.builder()
                     .orderId(event.getOrderId())

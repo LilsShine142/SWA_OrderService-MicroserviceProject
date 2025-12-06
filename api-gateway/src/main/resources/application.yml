@@ -1,11 +1,12 @@
 server:
-  port: 8081 # Cổng mặc định của API Gateway
+  port: 8088 # Cổng mặc định của API Gateway
 
 eureka:
   client:
     serviceUrl:
-      # Chắc chắn Eureka Server đang chạy trên cổng 8761
-      defaultZone: http://localhost:8671/eureka
+      # Chắc chắn Eureka Server đang chạy trên cổng 8671
+      defaultZone: http://discovery-server:8671/eureka
+    region: default
 
 spring:
   application:

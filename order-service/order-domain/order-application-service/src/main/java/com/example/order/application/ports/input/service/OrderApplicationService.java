@@ -1,7 +1,8 @@
 package com.example.order.application.ports.input.service;
 
 import com.example.order.application.dto.*;
-import com.example.order.application.dto.*;
+
+import java.util.UUID;
 
 /**
  * INPUT PORT Interface cho Use Cases
@@ -33,4 +34,10 @@ public interface OrderApplicationService {
      *
      */
     CancelOrderResponse cancelOrder(CancelOrderCommand command);
+
+    /**
+     * Use Case: Process restaurant approval
+     *
+     */
+    void processRestaurantApproval(UUID orderId);
 }
