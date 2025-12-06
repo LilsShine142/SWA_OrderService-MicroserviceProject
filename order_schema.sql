@@ -21,22 +21,15 @@ CREATE TABLE orders (
 
 -- 4. Bảng Order items
 CREATE TABLE order_items (
-    id BIGINT NOT NULL,
-    order_id UUID NOT NULL,
-    product_id UUID NOT NULL,
-    price NUMERIC(10,2) NOT NULL CHECK (price >= 0),
-    quantity INTEGER NOT NULL CHECK (quantity > 0),
-    sub_total NUMERIC(10,2) NOT NULL CHECK (sub_total >= 0),
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE,
-
-    CONSTRAINT order_items_pkey PRIMARY KEY (id), -- Khóa chính
-
-    -- Ràng buộc khóa ngoại trỏ về bảng orders
-    CONSTRAINT fk_order_items_orders FOREIGN KEY (order_id)
-        REFERENCES orders (id)
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
+    id UUID NOT NULL,                                   -- Định danh tự tăng cho mỗi món trong đơn hàng
+    order_id UUID NOT NULL,                                -- Định danh của đơn hàng liên quan
+    product_id UUID NOT NULL,                              -- Định danh của sản phẩm
+    price NUMERIC(10,2) NOT NULL CHECK (price >= 0),       -- Giá của món, kiểm tra không âm
+    quantity INTEGER NOT NULL CHECK (quantity > 0),        -- Số lượng, kiểm tra lớn hơn 0
+    sub_total NUMERIC(10,2) NOT NULL CHECK (sub_total >= 0), -- Tổng tiền của món, kiểm tra không âm
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Thời điểm tạo bản ghi, mặc định là thời gian hiện tại
+    updated_at TIMESTAMP WITH TIME ZONE,                   -- Thời điểm cập nhật bản ghi cuối cùng
+    CONSTRAINT order_items_pkey PRIMARY KEY (id, order_id) -- Khóa chính ghép từ id và order_id
 );
 
 -- 5. Bảng Order logs

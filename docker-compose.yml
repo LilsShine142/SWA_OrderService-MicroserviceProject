@@ -1,6 +1,211 @@
-version: '3.8'
+#version: '3.8'
+#
+#services:
+#  # ==================== DISCOVERY SERVER (EUREKA) ====================
+#  discovery-server:
+#    build:
+#      context: .
+#      dockerfile: discovery-server/Dockerfile
+#    container_name: discovery-server
+#    ports:
+#      - "8671:8671"
+#    environment:
+#      - EUREKA_CLIENT_REGISTERWITH_EUREKA=false
+#      - EUREKA_CLIENT_FETCHREGISTRY=false
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8671/actuator/health"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+#
+#  # ==================== API GATEWAY ====================
+#  api-gateway:
+#    build:
+#      context: .
+#      dockerfile: api-gateway/Dockerfile
+#    container_name: api-gateway
+#    ports:
+#      - "8088:8088"
+#    depends_on:
+#      - discovery-server
+#    environment:
+#      - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8671/eureka/
+#      - SERVER_PORT=8088
+#
+#  # ==================== KAFKA & ZOOKEEPER ====================
+#  zookeeper:
+#    image: confluentinc/cp-zookeeper:7.0.1
+#    container_name: zookeeper
+#    ports:
+#      - "2181:2181"
+#    environment:
+#      ZOOKEEPER_CLIENT_PORT: 2181
+#      ZOOKEEPER_TICK_TIME: 2000
+#
+#  kafka:
+#    image: confluentinc/cp-kafka:7.0.1
+#    container_name: kafka
+#    depends_on:
+#      - zookeeper
+#    ports:
+#      - "9092:9092"
+#    environment:
+#      KAFKA_BROKER_ID: 1
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+#
+#  # ==================== DATABASES (CÓ LƯU DỮ LIỆU) ====================
+#
+#  # 1. Database cho Order
+#  order-db:
+#    image: postgres:14-alpine
+#    container_name: order-db
+#    ports:
+#      - "5432:5432" # Cổng ngoài 5432
+#    environment:
+#      POSTGRES_DB: order_service
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: 123456
+#    volumes:
+#      # QUAN TRỌNG: Lưu dữ liệu vào thư mục postgres_data/order trên máy thật
+#      - ./postgres_data/order:/var/lib/postgresql/data
+#      # (Tùy chọn) Script tạo bảng tự động lần đầu
+#      - ./order_schema.sql:/docker-entrypoint-initdb.d/1-order.sql
+#
+#  # 2. Database cho Restaurant
+#  restaurant-db:
+#    image: postgres:14-alpine
+#    container_name: restaurant-db
+#    ports:
+#      - "5433:5432" # Cổng ngoài 5433 (để không đụng cổng 5432 của Order)
+#    environment:
+#      POSTGRES_DB: restaurant_service
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: 123456
+#    volumes:
+#      # QUAN TRỌNG: Lưu dữ liệu vào thư mục postgres_data/restaurant
+#      - ./postgres_data/restaurant:/var/lib/postgresql/data
+#      # (Tùy chọn) Script tạo bảng tự động
+#      - ./restaurant_schema.sql:/docker-entrypoint-initdb.d/2-restaurant.sql
+#
+#  # 3. Database cho Payment
+#  payment-db:
+#    image: postgres:14-alpine
+#    container_name: payment-db
+#    ports:
+#      - "5434:5432" # Cổng ngoài 5434
+#    environment:
+#      POSTGRES_DB: payment_service
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: 123456
+#    volumes:
+#      # QUAN TRỌNG: Lưu dữ liệu vào thư mục postgres_data/payment
+#      - ./postgres_data/payment:/var/lib/postgresql/data
+#      - ./payment_schema.sql:/docker-entrypoint-initdb.d/3-payment.sql
+#  # ==================== ORDER SERVICE ====================
+#  order-service:
+#    build:
+#      context: .
+#      dockerfile: order-service/order-container/Dockerfile
+#    container_name: order-service
+#    ports:
+#      - "8181:8181"
+#    depends_on:
+#      - kafka
+#      - order-db
+#      - discovery-server
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/order_service
+#      SPRING_DATASOURCE_USERNAME: postgres
+#      SPRING_DATASOURCE_PASSWORD: 123456
+#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8671/eureka/
+#      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
+#      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+#      SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: order
+#
+#  # ==================== RESTAURANT SERVICE ====================
+#  restaurant-service:
+#    build:
+#      context: .
+#      dockerfile: restaurant-service/restaurant-container/Dockerfile
+#    container_name: restaurant-service
+#    ports:
+#      - "8081:8081"
+#    depends_on:
+#      - kafka
+#      - restaurant-db
+#      - discovery-server
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://restaurant-db:5432/restaurant_service
+#      SPRING_DATASOURCE_USERNAME: postgres
+#      SPRING_DATASOURCE_PASSWORD: 123456
+#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8671/eureka/
+#      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
+#
+#  # ==================== PAYMENT SERVICE ====================
+#  payment-service:
+#    build:
+#      context: .
+#      dockerfile: paymentService/paymentContainer/Dockerfile
+#    container_name: payment-service
+#    ports:
+#      - "8082:8082"
+#    depends_on:
+#      - kafka
+#      - payment-db
+#      - discovery-server
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://payment-db:5432/payment_service
+#      SPRING_DATASOURCE_USERNAME: postgres
+#      SPRING_DATASOURCE_PASSWORD: 123456
+#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8671/eureka/
+#      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
+#      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+#      SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: payment
+#
+#networks:
+#  default:
+#    name: swa-network
 
+
+version: '3.8'
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.0.1
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+
   # ==================== DISCOVERY SERVER (EUREKA) ====================
   discovery-server:
     build:
@@ -13,7 +218,7 @@ services:
       - EUREKA_CLIENT_REGISTERWITH_EUREKA=false
       - EUREKA_CLIENT_FETCHREGISTRY=false
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8671/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8671/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -25,88 +230,45 @@ services:
       dockerfile: api-gateway/Dockerfile
     container_name: api-gateway
     ports:
-      - "8088:8088"
+      - "8083:8083"
     depends_on:
       - discovery-server
     environment:
       - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8671/eureka/
-      - SERVER_PORT=8088
+      - SERVER_PORT=8083
 
-  # ==================== KAFKA & ZOOKEEPER ====================
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.1
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-
-  kafka:
-    image: confluentinc/cp-kafka:7.0.1
-    container_name: kafka
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-
-  # ==================== DATABASES (CÓ LƯU DỮ LIỆU) ====================
-  
-  # 1. Database cho Order
+  # Cấu hình Database
   order-db:
-    image: postgres:14-alpine
+    image: postgres:14
     container_name: order-db
     ports:
-      - "5432:5432" # Cổng ngoài 5432
+      - "5432:5432"
     environment:
       POSTGRES_DB: order_service
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
-    volumes:
-      # QUAN TRỌNG: Lưu dữ liệu vào thư mục postgres_data/order trên máy thật
-      - ./postgres_data/order:/var/lib/postgresql/data
-      # (Tùy chọn) Script tạo bảng tự động lần đầu
-      - ./order_schema.sql:/docker-entrypoint-initdb.d/1-order.sql
 
-  # 2. Database cho Restaurant
   restaurant-db:
-    image: postgres:14-alpine
+    image: postgres:14
     container_name: restaurant-db
     ports:
-      - "5433:5432" # Cổng ngoài 5433 (để không đụng cổng 5432 của Order)
+      - "5433:5432"
     environment:
       POSTGRES_DB: restaurant_service
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
-    volumes:
-      # QUAN TRỌNG: Lưu dữ liệu vào thư mục postgres_data/restaurant
-      - ./postgres_data/restaurant:/var/lib/postgresql/data
-      # (Tùy chọn) Script tạo bảng tự động
-      - ./restaurant_schema.sql:/docker-entrypoint-initdb.d/2-restaurant.sql
 
-  # 3. Database cho Payment
   payment-db:
-    image: postgres:14-alpine
+    image: postgres:14
     container_name: payment-db
     ports:
-      - "5434:5432" # Cổng ngoài 5434
+      - "5434:5432"
     environment:
       POSTGRES_DB: payment_service
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
-    volumes:
-      # QUAN TRỌNG: Lưu dữ liệu vào thư mục postgres_data/payment
-      - ./postgres_data/payment:/var/lib/postgresql/data
-      - ./payment_schema.sql:/docker-entrypoint-initdb.d/3-payment.sql
-  # ==================== ORDER SERVICE ====================
+
   order-service:
     build:
       context: .
@@ -117,18 +279,12 @@ services:
     depends_on:
       - kafka
       - order-db
-      - discovery-server
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/order_service
+      SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/order_service?stringtype=unspecified
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 123456
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8671/eureka/
-      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: order
 
-  # ==================== RESTAURANT SERVICE ====================
   restaurant-service:
     build:
       context: .
@@ -139,16 +295,12 @@ services:
     depends_on:
       - kafka
       - restaurant-db
-      - discovery-server
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://restaurant-db:5432/restaurant_service
+      SPRING_DATASOURCE_URL: jdbc:postgresql://restaurant-db:5432/restaurant_service?stringtype=unspecified
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 123456
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8671/eureka/
-      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
 
-  # ==================== PAYMENT SERVICE ====================
   payment-service:
     build:
       context: .
@@ -159,17 +311,11 @@ services:
     depends_on:
       - kafka
       - payment-db
-      - discovery-server
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://payment-db:5432/payment_service
+      SPRING_DATASOURCE_URL: jdbc:postgresql://payment-db:5432/payment_service?stringtype=unspecified
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 123456
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8671/eureka/
-      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: payment
-
-networks:
-  default:
-    name: swa-network
+      SPRING_JPA_PROPERTIES_HIBERNATE_HBM2DDL_CREATE_SCHEMAS: true

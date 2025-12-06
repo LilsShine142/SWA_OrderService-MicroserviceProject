@@ -40,6 +40,15 @@ public class OrderEntity {
     @Column(name = "created_at")
     private Instant createdAt; // [cite: 503]
 
+    @Column(name = "street")
+    private String street;
+
+    @Column(name = "postal_code")
+    private String postalCode;
+
+    @Column(name = "city")
+    private String city;
+
     // Khai báo quan hệ Một-Nhiều (1 Order có nhiều OrderItem)
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderItemEntity> items;
@@ -67,6 +76,13 @@ public class OrderEntity {
 
     public List<OrderItemEntity> getItems() { return items; }
     public void setItems(List<OrderItemEntity> items) { this.items = items; }
+
+    public String getStreet() { return street; }
+    public void setStreet(String street) { this.street = street; }
+    public String getPostalCode() { return postalCode; }
+    public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
 
     @Override
     public boolean equals(Object o) {

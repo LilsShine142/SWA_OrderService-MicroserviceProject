@@ -135,11 +135,10 @@ public class Order extends AggregateRoot<OrderId> {
     }
 
     private void initializeOrderItems() {
-        // SQL dùng BIGINT cho ID của item, nên dùng Long
-        AtomicLong itemIdCounter = new AtomicLong(1);
+        // Use UUID for unique item IDs
         for (OrderItem orderItem : items) {
             orderItem.initializeOrderItem(this.getId(),
-                    new OrderItemId(itemIdCounter.getAndIncrement()));
+                    new OrderItemId(UUID.randomUUID()));
         }
     }
 

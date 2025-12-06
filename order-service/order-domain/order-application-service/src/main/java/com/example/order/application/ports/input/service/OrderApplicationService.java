@@ -2,6 +2,7 @@ package com.example.order.application.ports.input.service;
 
 import com.example.order.application.dto.*;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -40,4 +41,10 @@ public interface OrderApplicationService {
      *
      */
     void processRestaurantApproval(UUID orderId);
+
+    List<OrderSummaryResponse> findAllOrders();
+
+    void payOrder(UUID orderId);    // Xử lý khi Payment báo thành công
+
+    void approveOrder(UUID orderId); // Xử lý khi Restaurant báo duyệt
 }

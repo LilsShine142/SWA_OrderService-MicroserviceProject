@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -39,5 +40,18 @@ public class RestaurantRepositoryAdapter implements RestaurantRepositoryPort {
     public void saveApproval(OrderApproval approval) {
         OrderApprovalEntity entity = approvalMapper.orderApprovalToOrderApprovalEntity(approval);
         approvalJpaRepository.save(entity);
+    }
+
+    @Override
+    public OrderApproval save(OrderApproval orderApproval) {
+        OrderApprovalEntity entity = approvalMapper.orderApprovalToOrderApprovalEntity(orderApproval);
+        OrderApprovalEntity savedEntity = approvalJpaRepository.save(entity);
+        return approvalMapper.orderApprovalEntityToOrderApproval(savedEntity);
+    }
+
+    @Override
+    public Optional<OrderApproval> findByOrderId(UUID orderId) {
+        Optional<OrderApprovalEntity> entity = approvalJpaRepository.findByOrderId(orderId);
+        return entity.map(approvalMapper::orderApprovalEntityToOrderApproval);
     }
 }

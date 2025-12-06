@@ -181,6 +181,7 @@
 
 package com.example.restaurant.application.useCase;
 
+import com.example.common_messaging.dto.event.OrderPaidEvent;
 import com.example.restaurant.application.dto.request.ApproveOrderCommand;
 import com.example.restaurant.application.dto.request.RejectOrderCommand;
 import com.example.restaurant.application.dto.response.OrderApprovalResponse;
@@ -356,5 +357,23 @@ public class RestaurantApprovalServiceImpl implements RestaurantApplicationServi
             log.error("Unexpected error during reject order", e);
             return restaurantDataMapper.toErrorResponse(command.getOrderId(), "Lỗi hệ thống, vui lòng thử lại sau");
         }
+    }
+
+    @Override
+    @Transactional
+    public void completeOrderApproval(OrderPaidEvent event) {
+        log.info("Xử lý logic nghiệp vụ cho Order đã thanh toán: {}", event.getOrderId());
+
+        // Tạo Entity (Domain Object)
+        OrderApproval orderApproval = OrderApproval.builder()
+                .orderId(event.getOrderId())
+                .restaurantId(new RestaurantId(event.getRestaurantId()))
+                .approvalStatus(ApprovalStatus.PENDING) // Logic nghiệp vụ set default
+                .build();
+
+        orderApproval.setId(new ApprovalId(UUID.randomUUID()));
+
+        // Gọi qua Output Port để lưu (Không gọi trực tiếp JPA)
+        repositoryPort.save(orderApproval);
     }
 }

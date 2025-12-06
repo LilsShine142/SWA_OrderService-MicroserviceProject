@@ -7,7 +7,7 @@ spring:
 
   # Database configuration (PostgreSQL)
   datasource:
-    url: jdbc:postgresql://localhost:5434/payment_service
+    url: jdbc:postgresql://localhost:5434/payment_service?stringtype=unspecified
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: 123456

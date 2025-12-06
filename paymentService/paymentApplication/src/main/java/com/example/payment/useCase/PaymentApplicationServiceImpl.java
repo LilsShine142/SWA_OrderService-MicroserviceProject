@@ -3,6 +3,7 @@ package com.example.payment.useCase;
 import com.example.payment.dto.*;
 import com.example.payment.entity.Payment;
 import com.example.payment.event.PaymentCompletedEvent;
+import com.example.payment.event.PaymentCreatedEvent;
 import com.example.payment.event.PaymentFailedEvent;
 import com.example.payment.event.PaymentRefundedEvent;
 import com.example.payment.mapper.PaymentDataMapper;
@@ -132,6 +133,9 @@ public PaymentResponse processPayment(CreatePaymentCommand paymentRequest) {
         successResponse.setPaymentUrl(paymentUrl); // Dummy URL for simulate
         successResponse.setCreatedAt(payment.getCreatedAt());
         successResponse.setUpdatedAt(payment.getUpdatedAt());
+
+        // Publish event for SAGA
+        messagePublisherPort.publish(new PaymentCreatedEvent(payment));
         return successResponse;
 
     } catch (Exception e) {

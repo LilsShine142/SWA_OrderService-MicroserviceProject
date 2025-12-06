@@ -1,5 +1,8 @@
 
 
+-- Thay đổi các giá trị trong ngoặc đơn tùy theo logic của bạn (ví dụ: PENDING, COMPLETED, FAILED...)
+CREATE TYPE payment_status AS ENUM ('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED');
+
 -- Bảng Payments (tổng hợp chính cho quản lý thanh toán)
 CREATE TABLE "payment" (
     id UUID NOT NULL,

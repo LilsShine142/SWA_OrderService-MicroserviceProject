@@ -5,6 +5,7 @@ package com.example.order.application.ports.output;
 import com.example.order.domain.core.entity.Order;
 import com.example.order.domain.core.valueobject.TrackingId;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,4 +34,6 @@ public interface OrderRepository {
      * Tìm Order bằng Tracking ID (dựa trên CSDL [cite: 522-523] và Listing 2 [cite: 148])
      */
     Optional<Order> findByTrackingId(TrackingId trackingId);
+
+    List<Order> findAll();
 }

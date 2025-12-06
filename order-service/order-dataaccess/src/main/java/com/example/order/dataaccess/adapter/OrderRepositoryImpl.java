@@ -10,8 +10,10 @@ import com.example.order.dataaccess.mapper.OrderDataaccessMapper;
 
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * ADAPTER PATTERN (Triển khai "Bước 3")
@@ -55,5 +57,12 @@ public class OrderRepositoryImpl implements OrderRepository {
         return orderJpaRepository
                 .findByTrackingId(trackingId.value()) // trackingId.value() là UUID
                 .map(orderDataAccessMapper::orderEntityToOrder);
+    }
+
+    @Override
+    public List<Order> findAll() {
+        return orderJpaRepository.findAll().stream()
+                .map(orderDataAccessMapper::orderEntityToOrder) // Chuyển Entity JPA -> Domain Order
+                .collect(Collectors.toList());
     }
 }

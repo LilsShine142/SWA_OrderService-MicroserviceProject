@@ -15,7 +15,7 @@ import java.util.Objects;
 public class OrderItemEntity {
 
     @Id
-    private Long id; // [cite: 507]
+    private UUID id; // [cite: 507]
 
     // Đây là phần thứ 2 của Khóa Composite
     // Vừa là @Id, vừa là Foreign Key (Quan hệ Nhiều-Một)
@@ -39,8 +39,8 @@ public class OrderItemEntity {
     public OrderItemEntity() {}
 
     // Getters, Setters, equals, hashCode (Bạn có thể dùng Lombok)
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
     public OrderEntity getOrder() { return order; }
     public void setOrder(OrderEntity order) { this.order = order; }
     public UUID getProductId() { return productId; }

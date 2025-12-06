@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,7 +26,7 @@ public class OrderController {
     // 1. User gọi API Tạo đơn
     @PostMapping
     public ResponseEntity<CreateOrderResponse> createOrder(@Valid @RequestBody CreateOrderCommand createOrderCommand) {
-        log.info("REST request to create order for customer: {}", createOrderCommand.customerId());
+        log.info("REST request to create order for customer: {}", createOrderCommand.getCustomerId());
         CreateOrderResponse response = orderApplicationService.createOrder(createOrderCommand);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -46,6 +48,13 @@ public class OrderController {
         CancelOrderCommand command = new CancelOrderCommand(trackingId, reason);
 
         CancelOrderResponse response = orderApplicationService.cancelOrder(command);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/getall")
+    public ResponseEntity<List<OrderSummaryResponse>> getAllOrders() {
+        // log.info("REST request to get all orders");
+        List<OrderSummaryResponse> response = orderApplicationService.findAllOrders();
         return ResponseEntity.ok(response);
     }
 }

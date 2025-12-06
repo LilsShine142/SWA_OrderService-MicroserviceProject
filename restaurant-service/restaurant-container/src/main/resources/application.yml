@@ -7,7 +7,7 @@ spring:
 
   # Database configuration (PostgreSQL)
   datasource:
-    url: jdbc:postgresql://localhost:5433/restaurant_service
+    url: jdbc:postgresql://localhost:5433/restaurant_service?stringtype=unspecified
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: 123456
