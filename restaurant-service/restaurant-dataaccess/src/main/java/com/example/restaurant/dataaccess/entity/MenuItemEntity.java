@@ -18,16 +18,15 @@ import java.util.UUID;
 public class MenuItemEntity {
 
     @Id
-    @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(name = "restaurant_id", nullable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "restaurant_id", nullable = false)
     private UUID restaurantId;
 
-    @Column(name = "product_id", nullable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "product_id", nullable = false)
     private UUID productId;
 
-    @Column(name = "category_id", nullable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "category_id", nullable = false)
     private UUID categoryId;
 
     @Column(name = "name", nullable = false, length = 100)

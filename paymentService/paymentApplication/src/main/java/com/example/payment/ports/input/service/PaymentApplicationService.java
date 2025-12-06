@@ -1,8 +1,6 @@
 package com.example.payment.ports.input.service;
 
-import com.example.payment.dto.CreatePaymentCommand;
-import com.example.payment.dto.OrderEvent;
-import com.example.payment.dto.PaymentResponse;
+import com.example.payment.dto.*;
 
 import java.util.Map;
 import java.util.UUID;
@@ -20,8 +18,10 @@ public interface PaymentApplicationService {
 
     /**
      * Xử lý VNPay callback/IPN (sandbox)
+     *
+     * @return
      */
-    void handleCallback(Map<String, String> params);
+    ResponseData handleCallback(Map<String, String> params);
 
     /**
      * Refund Payment (sandbox, SAGA compensation)
@@ -29,4 +29,9 @@ public interface PaymentApplicationService {
     void refundPayment(UUID paymentId, String transactionNo, String reason);
 
     void processPaymentFromEvent(OrderEvent event);
+
+    /**
+     * Method để simulate set order status (chỉ dùng cho test)
+     */
+    void setOrderStatusForSimulation(UUID orderId, String status);
 }

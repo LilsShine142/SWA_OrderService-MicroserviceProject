@@ -1,11 +1,8 @@
 package com.example.payment.useCase;
 
-import com.example.payment.dto.CreatePaymentCommand;
-import com.example.payment.dto.OrderEvent;
-import com.example.payment.dto.PaymentResponse;
+import com.example.payment.dto.*;
 import com.example.payment.entity.Payment;
 import com.example.payment.event.PaymentCompletedEvent;
-import com.example.payment.event.PaymentCreatedEvent;
 import com.example.payment.event.PaymentFailedEvent;
 import com.example.payment.event.PaymentRefundedEvent;
 import com.example.payment.mapper.PaymentDataMapper;
@@ -13,6 +10,8 @@ import com.example.payment.ports.input.service.PaymentApplicationService;
 import com.example.payment.ports.output.MessagePaymentEventPublisher;
 import com.example.payment.ports.output.PaymentRepository;
 import com.example.payment.ports.output.VNPayOutputPort;
+import com.example.payment.valueobject.CustomerId;
+import com.example.payment.valueobject.OrderId;
 import com.example.payment.valueobject.PaymentId;
 import com.example.payment.valueobject.PaymentStatus;
 import org.slf4j.Logger;
@@ -21,8 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,15 +55,29 @@ public class PaymentApplicationServiceImpl implements PaymentApplicationService 
         this.paymentDataMapper = paymentDataMapper;
     }
 
+    // --- 1. HÀM ĐƯỢC GỌI BỞI CONSUMER  ---
+    @Override
+    @Transactional
+    public void processPaymentFromEvent(OrderEvent event) {
+        log.info("📥 PaymentService nhận OrderEvent: orderId={}, status={}", event.getOrderId(), event.getStatus());
+
+        // Cập nhật Cache
+        orderStatusCache.put(event.getOrderId().toString(), event.getStatus());
+
+        if ("APPROVED".equals(event.getStatus())) {
+            log.info("Order approved -> Có thể kích hoạt logic thanh toán tự động tại đây nếu cần");
+        }
+    }
+
 //    @Override
 //    @Transactional
 //    public PaymentResponse processPayment(CreatePaymentCommand request) {
 //        try {
 //            Payment payment = paymentDataMapper.paymentRequestToPayment(request);
 ////        Tạm thời không check để test VNPay
-////        payment.initializePayment();
+//            payment.initializePayment();
 ////        payment.validatePayment();
-//            payment.setId(new PaymentId(UUID.randomUUID()));
+////            payment.setId(new PaymentId(UUID.randomUUID()));
 //            Payment savedPayment = paymentRepositoryPort.save(payment);
 //            log.info("2. Created payment with ID: {}", savedPayment.getId());
 //            String vnpTxnRef = savedPayment.getId().toString();
@@ -86,81 +97,81 @@ public class PaymentApplicationServiceImpl implements PaymentApplicationService 
 //            return errorResponse;
 //        }
 //    }
-
-    // --- 1. HÀM ĐƯỢC GỌI BỞI CONSUMER  ---
-    @Override
-    @Transactional
-    public void processPaymentFromEvent(OrderEvent event) {
-        log.info("📥 PaymentService nhận OrderEvent: orderId={}, status={}", event.getOrderId(), event.getStatus());
-
-        // Cập nhật Cache
-        orderStatusCache.put(event.getOrderId().toString(), event.getStatus());
-
-        if ("APPROVED".equals(event.getStatus())) {
-            log.info("Order approved -> Có thể kích hoạt logic thanh toán tự động tại đây nếu cần");
-        }
+@Override
+@Transactional
+public PaymentResponse processPayment(CreatePaymentCommand paymentRequest) {
+    // Kiểm tra trạng thái order từ event
+    String orderStatus = orderStatusCache.getOrDefault(paymentRequest.getOrderId().toString(), "UNKNOWN");
+    if (!"APPROVED".equals(orderStatus)) {
+        PaymentResponse errorResponse = new PaymentResponse();
+        errorResponse.setMessage("Order is not approved for payment. Current status: " + orderStatus);
+        errorResponse.setStatus(PaymentStatus.FAILED);
+        return errorResponse;
     }
 
-    @Override
-    @Transactional
-    public PaymentResponse processPayment(CreatePaymentCommand paymentRequest) {
-        // Kiểm tra trạng thái order từ event
-        String orderStatus = orderStatusCache.getOrDefault(paymentRequest.getOrderId().toString(), "UNKNOWN");
-        if (!"APPROVED".equals(orderStatus)) {
-            PaymentResponse errorResponse = new PaymentResponse();
-            errorResponse.setMessage("Order is not approved for payment. Current status: " + orderStatus);
-            errorResponse.setStatus(PaymentStatus.FAILED);
-            return errorResponse;
-        }
+    // 1. Tạo Payment Entity & Gán ID
+    Payment payment = paymentDataMapper.paymentRequestToPayment(paymentRequest);
+    payment.initializePayment();
+    System.out.println("Initialized Payment: " + payment);
 
-        // 1. Tạo Payment Entity & Gán ID
-        Payment payment = paymentDataMapper.paymentRequestToPayment(paymentRequest);
-        payment.initializePayment();
+    try {
+        // --- TRƯỜNG HỢP THÀNH CÔNG ---
+        payment.setPaymentStatus(PaymentStatus.PENDING);
+        paymentRepositoryPort.save(payment); // Cập nhật DB
 
-        try {
-            // --- TRƯỜNG HỢP THÀNH CÔNG ---
-            payment.setPaymentStatus(PaymentStatus.COMPLETED);
-            paymentRepositoryPort.save(payment); // Cập nhật DB
+        PaymentResponse successResponse = new PaymentResponse();
+        successResponse.setPaymentId(payment.getId().value());
+        successResponse.setOrderId(new OrderId(paymentRequest.getOrderId()));
+        successResponse.setCustomerId(new CustomerId(paymentRequest.getCustomerId()));
+        successResponse.setAmount(paymentRequest.getAmount());
+        successResponse.setStatus(PaymentStatus.PENDING);
+        successResponse.setMessage("Tạo thanh toán thành công, hãy tiến hành thanh toán");
+        String vnpTxnRef = payment.getId().toString();
+        String paymentUrl = vnPayOutputPort.generatePaymentUrl(payment, paymentRequest, vnpTxnRef, vnpPayUrl, vnpTmnCode, vnpHashSecret, vnpReturnUrl, paymentCache);
+        log.info("3. Generated VNPay payment URL: {}", paymentUrl);
+        successResponse.setPaymentUrl(paymentUrl); // Dummy URL for simulate
+        successResponse.setCreatedAt(payment.getCreatedAt());
+        successResponse.setUpdatedAt(payment.getUpdatedAt());
+        return successResponse;
 
-            // Bắn Event: PAYMENT COMPLETED
-            log.info("Thanh toán thành công. Đang gửi event PaymentCompleted...");
-            messagePublisherPort.publish(new PaymentCompletedEvent(payment));
+    } catch (Exception e) {
+        // --- TRƯỜNG HỢP THẤT BẠI ---
+        log.error("Thanh toán thất bại: {}", e.getMessage());
 
-            PaymentResponse successResponse = new PaymentResponse();
-            successResponse.setPaymentId(payment.getId().value());
-            successResponse.setStatus(PaymentStatus.COMPLETED);
-            successResponse.setMessage("Thanh toán thành công");
-            return successResponse;
+        payment.setPaymentStatus(PaymentStatus.FAILED);
+        payment.setFailureReason(String.valueOf(List.of(e.getMessage())));
+        paymentRepositoryPort.save(payment); // Cập nhật DB
 
-        } catch (Exception e) {
-            // --- TRƯỜNG HỢP THẤT BẠI ---
-            log.error("Thanh toán thất bại: {}", e.getMessage());
+        // Bắn Event: PAYMENT FAILED
+        log.info("Đang gửi event PaymentFailed...");
+        messagePublisherPort.publish(new PaymentFailedEvent(payment, String.valueOf(List.of(e.getMessage()))));
 
-            payment.setPaymentStatus(PaymentStatus.FAILED);
-            payment.setFailureReason(String.valueOf(List.of(e.getMessage())));
-            paymentRepositoryPort.save(payment); // Cập nhật DB
-
-            // Bắn Event: PAYMENT FAILED
-            log.info("Đang gửi event PaymentFailed...");
-            messagePublisherPort.publish(new PaymentFailedEvent(payment, String.valueOf(List.of(e.getMessage()))));
-
-            PaymentResponse failedResponse = new PaymentResponse();
-            failedResponse.setPaymentId(payment.getId().value());
-            failedResponse.setStatus(PaymentStatus.FAILED);
-            failedResponse.setMessage("Thanh toán thất bại: " + e.getMessage());
-            return failedResponse;
-        }
+        PaymentResponse failedResponse = new PaymentResponse();
+        failedResponse.setPaymentId(payment.getId().value());
+        failedResponse.setStatus(PaymentStatus.FAILED);
+        failedResponse.setMessage("Thanh toán thất bại: " + e.getMessage());
+        return failedResponse;
     }
+}
 
     @Override
     @Transactional
-    public void handleCallback(Map<String, String> params) {
+    public ResponseData handleCallback(Map<String, String> params) {
         // Logic from sample: verify checksum, update payment, publish event
         String vnp_SecureHash = params.get("vnp_SecureHash");
         String billID = params.get("vnp_TxnRef");
 
         if (billID == null || vnp_SecureHash == null) {
-            throw new RuntimeException("Missing billID or signature");
+            return new ResponseData(400, false, "Missing billID or signature", null);
+        }
+
+        // Extract UUID from PaymentId[value=UUID] format
+        String uuidString = billID.replace("PaymentId[value=", "").replace("]", "");
+        UUID paymentId;
+        try {
+            paymentId = UUID.fromString(uuidString);
+        } catch (IllegalArgumentException e) {
+            return new ResponseData(400, false, "Invalid payment ID format", null);
         }
 
         String originalHashData = paymentCache.get(billID);
@@ -169,7 +180,6 @@ public class PaymentApplicationServiceImpl implements PaymentApplicationService 
         if (isValid) {
             paymentCache.remove(billID);
             String transactionStatus = params.get("vnp_TransactionStatus");
-            UUID paymentId = UUID.fromString(billID);
             Payment payment = paymentRepositoryPort.findById(new PaymentId(paymentId))
                     .orElseThrow(() -> new RuntimeException("Payment not found"));
 
@@ -177,14 +187,17 @@ public class PaymentApplicationServiceImpl implements PaymentApplicationService 
                 payment.complete();
                 payment.setTransactionId(params.get("vnp_TransactionNo"));
                 messagePublisherPort.publish(new PaymentCompletedEvent(payment));
+                paymentRepositoryPort.save(payment);
+                Map<String, Object> data = Map.of("transactionNo", params.get("vnp_TransactionNo"), "orderId", payment.getOrderId().toString());
+                return new ResponseData(200, true, "Thanh toán thành công", data);
             } else {
                 payment.fail("VNPay response code: " + params.get("vnp_ResponseCode"));
                 messagePublisherPort.publish(new PaymentFailedEvent(payment, "Failed"));
+                paymentRepositoryPort.save(payment);
+                return new ResponseData(400, false, "Thanh toán thất bại", null);
             }
-            paymentRepositoryPort.save(payment);
         } else {
-            // Fallback logic as in sample
-            // ... (implement similar fallback)
+            return new ResponseData(400, false, "Checksum verification failed", null);
         }
     }
 
@@ -199,5 +212,10 @@ public class PaymentApplicationServiceImpl implements PaymentApplicationService 
         payment.refund();
         paymentRepositoryPort.save(payment);
         messagePublisherPort.publish(new PaymentRefundedEvent(payment));
+    }
+
+    @Override
+    public void setOrderStatusForSimulation(UUID orderId, String status) {
+        orderStatusCache.put(orderId.toString(), status);
     }
 }

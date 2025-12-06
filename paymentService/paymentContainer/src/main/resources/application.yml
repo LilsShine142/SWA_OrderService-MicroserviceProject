@@ -49,7 +49,7 @@ vnp:
     url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
   tmnCode: GS884LF7
   hashSecret: 3OZWA90359NGJYQHBANJRV2AD5ZRUDW2
-  returnUrl: http://localhost:8082/
+  returnUrl: http://localhost:8082/api/payments/callback
   refund:
     url: https://sandbox.vnpayment.vn/merchant_webapi/merchant.html
 eureka:
