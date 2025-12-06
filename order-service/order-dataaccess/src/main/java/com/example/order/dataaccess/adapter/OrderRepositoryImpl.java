@@ -8,6 +8,9 @@ import com.example.order.domain.core.valueobject.TrackingId;
 import com.example.order.application.ports.output.OrderRepository;
 import com.example.order.dataaccess.entity.OrderEntity;
 import com.example.order.dataaccess.mapper.OrderDataaccessMapper;
+
+import org.springframework.stereotype.Component;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;

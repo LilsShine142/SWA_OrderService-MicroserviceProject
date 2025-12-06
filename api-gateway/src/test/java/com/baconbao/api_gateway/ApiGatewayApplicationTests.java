@@ -1,10 +1,10 @@
-package com.example.orderMessaging;
+package com.baconbao.api_gateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class OrderMessagingApplicationTests {
+class ApiGatewayApplicationTests {
 
 	@Test
 	void contextLoads() {

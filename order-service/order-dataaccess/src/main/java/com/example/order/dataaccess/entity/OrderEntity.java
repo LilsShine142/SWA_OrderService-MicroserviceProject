@@ -13,7 +13,7 @@ import java.util.Objects;
  * Vị trí: order-dataaccess/entity/
  */
 @Entity
-@Table(name = "orders", schema = "\"order\"")
+@Table(name = "orders")
 public class OrderEntity {
 
     @Id
