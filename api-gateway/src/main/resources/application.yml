@@ -1,5 +1,5 @@
 server:
-  port: 8081 # Cổng mặc định của API Gateway
+  port: 8083 # Cổng mặc định của API Gateway
 
 eureka:
   client:
@@ -22,17 +22,20 @@ spring:
             # Bạn có thể thêm bộ lọc (Filters) như AuthenticationFilter tại đây nếu cần
             # filters:
             # - AuthenticationFilter
-
+          filters:
+            # Viết lại path: Bất cứ thứ gì sau /api/orders/ đều được giữ lại,
+            # nhưng thay thế /api/orders bằng /orders
+            - RewritePath=/api/orders/(?<segment>.*), /orders/$\{segment
         # 2. Định tuyến cho Payment Service (paymentService)
         - id: payment-service
           # Lưu ý: Đảm bảo tên service đăng ký với Eureka là PAYMENT-SERVICE
-          uri: lb://PAYMENT-SERVICE
+          uri: lb://PAYMENTDOMAIN
           predicates:
             - Path=/api/payments/** # Định tuyến tất cả yêu cầu bắt đầu bằng /api/payments/
 
         # 3. Định tuyến cho Restaurant Service (restaurant-service)
         - id: restaurant-service
-          uri: lb://RESTAURANT-SERVICE
+          uri: lb://ORDERMESSAGING
           predicates:
             - Path=/api/restaurants/** # Định tuyến tất cả yêu cầu bắt đầu bằng /api/restaurants/
 
