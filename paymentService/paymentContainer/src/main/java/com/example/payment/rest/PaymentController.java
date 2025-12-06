@@ -1,5 +1,6 @@
 package com.example.payment.rest;
 
+import com.example.common_messaging.dto.event.OrderCreatedEvent;
 import com.example.payment.dto.*;
 import com.example.payment.ports.input.service.PaymentApplicationService;
 import com.example.payment.valueobject.PaymentStatus;
@@ -51,11 +52,35 @@ public ResponseEntity<PaymentResponse> processPayment(@RequestBody CreatePayment
         return ResponseEntity.ok("Refund processed");
     }
 
-    @GetMapping("/callback")
-    public ResponseEntity<String> handleCallback(@RequestParam Map<String, String> params) {
-        paymentApplicationService.handleCallback(params);
-        return ResponseEntity.ok("Callback processed");
-    }
+//    @GetMapping("/callback")
+//    public ResponseEntity<?> handleCallback(@RequestParam Map<String, String> params) {
+//        try {
+//            log.info("VNPay Callback Params: {}", params);
+//
+//            // Gọi service xử lý logic
+//            PaymentCallbackResponse callbackResponse = paymentApplicationService.handleCallback(params);
+//
+//            if (callbackResponse.isSuccess()) {
+//                // Cách 1: Trả về thông báo text đơn giản
+//                return ResponseEntity.ok("Thanh toán THÀNH CÔNG! Mã GD: " + params.get("vnp_TxnRef"));
+//
+//                // Cách 2 (Nâng cao): Redirect về Frontend (React/Angular/Thymeleaf)
+//                // return ResponseEntity.status(HttpStatus.FOUND)
+//                //        .header("Location", "http://localhost:3000/payment-success")
+//                //        .build();
+//            } else {
+//                return ResponseEntity.badRequest().body("Thanh toán THẤT BẠI. Lý do: " + callbackResponse.getMessage());
+//            }
+//        } catch (Exception e) {
+//            log.error("Lỗi xử lý callback VNPay: ", e);
+//            return ResponseEntity.internalServerError().body("Lỗi hệ thống khi xử lý thanh toán: " + e.getMessage());
+//        }
+//    }
+@GetMapping("/callback")
+public ResponseEntity<ResponseData> handlePaymentReturn(@RequestParam Map<String, String> params) throws Exception {
+    ResponseData response = paymentApplicationService.handleCallback(params);
+    return ResponseEntity.status(response.getStatus()).body(response);
+}
 
     /**
      * Health check endpoint
@@ -64,6 +89,19 @@ public ResponseEntity<PaymentResponse> processPayment(@RequestBody CreatePayment
     public ResponseEntity<String> healthCheck() {
         log.info("Payment service health check");
         return ResponseEntity.ok("Payment Service is healthy");
+    }
+
+    // API này giả vờ như Payment Service vừa nhận được tin nhắn từ Kafka về order approved
+    @PostMapping("/simulate/order-created")
+    public ResponseEntity<String> simulateOrderCreated(@RequestBody SimulateOrderCreatedRequest request) {
+        log.info("Simulate OrderCreated for orderId={} customerId={} amount={}",
+                request.getOrderId(), request.getCustomerId(), request.getTotalAmount());
+
+        // Giả lập order đã được approved
+        paymentApplicationService.setOrderStatusForSimulation(request.getOrderId(), "APPROVED");
+
+        log.info("Order status set to APPROVED for orderId={}", request.getOrderId());
+        return ResponseEntity.ok("Order simulated as approved. Now you can call /api/payments to create payment.");
     }
 
 }

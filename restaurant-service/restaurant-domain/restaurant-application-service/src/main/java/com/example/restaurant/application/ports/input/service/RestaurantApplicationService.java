@@ -17,5 +17,5 @@ public interface RestaurantApplicationService {
 
     OrderApprovalResponse approveOrder(ApproveOrderCommand command);
 
-    void rejectOrder(RejectOrderCommand command);
+    OrderApprovalResponse rejectOrder(RejectOrderCommand command);
 }
