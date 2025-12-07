@@ -1,5 +1,6 @@
 package com.example.payment.dto;
 
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,8 +20,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreatePaymentCommand {
-        private UUID orderId;
-        private UUID customerId;
-        private BigDecimal amount;
-        private LocalDateTime createdAt;
+    @NotNull(message = "ID đơn hàng không được để trống")
+    private UUID orderId;
+
+    @NotNull(message = "ID khách hàng không được để trống")
+    private UUID customerId;
+
+    @NotNull(message = "Số tiền thanh toán không được để trống")
+    @DecimalMin(value = "0.01", message = "Số tiền phải lớn hơn 0")
+    @Digits(integer = 10, fraction = 2, message = "Số tiền không hợp lệ")
+    private BigDecimal amount;
+
+    private LocalDateTime createdAt;
 }

@@ -14,6 +14,7 @@ public class OrderCreatedEvent {
     private UUID customerId;
     private UUID restaurantId;
     private BigDecimal totalAmount;
+    private String status; // Thêm trường status
     private List<OrderItemDto> items;
 
     @Data

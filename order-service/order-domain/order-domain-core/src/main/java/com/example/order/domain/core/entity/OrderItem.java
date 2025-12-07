@@ -54,9 +54,15 @@ public class OrderItem extends BaseEntity<OrderItemId> {
     }
 
     public static final class Builder {
+        private OrderItemId id;
         private ProductId productId;
         private int quantity;
         private Money price;
+
+        public Builder id(OrderItemId id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder productId(ProductId productId) {
             this.productId = productId;
@@ -74,8 +80,11 @@ public class OrderItem extends BaseEntity<OrderItemId> {
         }
 
         public OrderItem build() {
-            // Có thể thêm validation ở đây
-            return new OrderItem(this);
+            OrderItem orderItem = new OrderItem(this);
+            if (id != null) {
+                orderItem.setId(id);
+            }
+            return orderItem;
         }
     }
 }

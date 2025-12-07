@@ -1,11 +1,15 @@
 package com.example.restaurant.application.ports.input.service;
 
 import com.example.common_messaging.dto.event.OrderPaidEvent;
+import com.example.restaurant.domain.core.entity.OrderApproval;
+import com.example.restaurant.domain.core.entity.Restaurant;
 import com.example.restaurant.domain.core.event.PaymentCompletedEvent;
 import com.example.restaurant.domain.core.event.PaymentFailedEvent;
 import com.example.restaurant.application.dto.request.ApproveOrderCommand;
 import com.example.restaurant.application.dto.request.RejectOrderCommand;
 import com.example.restaurant.application.dto.response.OrderApprovalResponse;
+
+import java.util.List;
 
 public interface RestaurantApplicationService {
 
@@ -22,4 +26,8 @@ public interface RestaurantApplicationService {
 
     // Hàm này để xử lý khi nhận tin nhắn "Order Paid"
     void completeOrderApproval(OrderPaidEvent orderPaidEvent);
+
+    List<Restaurant> getAllRestaurants();
+
+    List<OrderApproval> getAllOrderApprovals();
 }

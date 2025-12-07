@@ -11,7 +11,9 @@ import java.util.UUID;
 @Builder
 public class OrderPaidEvent {
     private UUID orderId;
+    private UUID customerId;
     private UUID restaurantId;
+    private String status; // Thêm trường status
     private List<OrderItemDto> items;
 
     @Data

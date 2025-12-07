@@ -47,9 +47,15 @@ public ResponseEntity<PaymentResponse> processPayment(@RequestBody CreatePayment
 }
 
     @PostMapping("/refund")
-    public ResponseEntity<String> refundPayment(@RequestParam UUID paymentId, @RequestParam String transactionNo, @RequestParam String reason) {
-        paymentApplicationService.refundPayment(paymentId, transactionNo, reason);
-        return ResponseEntity.ok("Refund processed");
+    public ResponseEntity<String> refundPayment(@RequestParam UUID orderId, @RequestParam String reason) {
+        paymentApplicationService.refundPayment(orderId, reason);
+        return ResponseEntity.ok("Refund initiated");
+    }
+
+    @GetMapping("/getall")
+    public ResponseEntity<List<PaymentResponse>> getAllPayments() {
+        List<PaymentResponse> payments = paymentApplicationService.getAllPayments();
+        return ResponseEntity.ok(payments);
     }
 
 //    @GetMapping("/callback")

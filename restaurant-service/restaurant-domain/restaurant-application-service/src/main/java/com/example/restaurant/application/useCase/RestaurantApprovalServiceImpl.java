@@ -210,6 +210,7 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -221,6 +222,9 @@ public class RestaurantApprovalServiceImpl implements RestaurantApplicationServi
     private final MessageRestaurantPublisherPort publisherPort;
     private final RestaurantDomainService domainService = new RestaurantDomainServiceImpl();
     private final RestaurantDataMapper restaurantDataMapper;
+
+    // Giả lập cache trạng thái order (orderId -> status)
+    private final ConcurrentHashMap<String, String> orderStatusCache = new ConcurrentHashMap<>();
 
     @Override
     @Transactional
@@ -293,6 +297,13 @@ public class RestaurantApprovalServiceImpl implements RestaurantApplicationServi
     // APPROVE
     @Override
     public OrderApprovalResponse approveOrder(ApproveOrderCommand command) {
+        // Kiểm tra trạng thái order từ cache
+        String orderStatus = orderStatusCache.get(command.getOrderId().toString());
+        if (!"PAID".equals(orderStatus)) {
+            return restaurantDataMapper.toFailureResponse(command.getOrderId(),
+                    "Đơn hàng chưa được thanh toán. Trạng thái hiện tại: " + orderStatus);
+        }
+
         try {
             Restaurant restaurant = repositoryPort.findById(new RestaurantId(command.getRestaurantId()))
                     .orElseThrow(() -> new IllegalArgumentException("Restaurant không tồn tại"));
@@ -364,6 +375,9 @@ public class RestaurantApprovalServiceImpl implements RestaurantApplicationServi
     public void completeOrderApproval(OrderPaidEvent event) {
         log.info("Xử lý logic nghiệp vụ cho Order đã thanh toán: {}", event.getOrderId());
 
+        // Cập nhật cache trạng thái order
+        orderStatusCache.put(event.getOrderId().toString(), event.getStatus());
+
         // Tạo Entity (Domain Object)
         OrderApproval orderApproval = OrderApproval.builder()
                 .orderId(event.getOrderId())
@@ -375,5 +389,15 @@ public class RestaurantApprovalServiceImpl implements RestaurantApplicationServi
 
         // Gọi qua Output Port để lưu (Không gọi trực tiếp JPA)
         repositoryPort.save(orderApproval);
+    }
+
+    @Override
+    public List<Restaurant> getAllRestaurants() {
+        return repositoryPort.findAllRestaurants();
+    }
+
+    @Override
+    public List<OrderApproval> getAllOrderApprovals() {
+        return repositoryPort.findAllOrderApprovals();
     }
 }

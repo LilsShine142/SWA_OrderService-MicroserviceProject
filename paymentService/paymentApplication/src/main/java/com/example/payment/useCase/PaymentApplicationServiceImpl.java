@@ -103,7 +103,7 @@ public class PaymentApplicationServiceImpl implements PaymentApplicationService 
 public PaymentResponse processPayment(CreatePaymentCommand paymentRequest) {
     // Kiểm tra trạng thái order từ event
     String orderStatus = orderStatusCache.getOrDefault(paymentRequest.getOrderId().toString(), "UNKNOWN");
-    if (!"APPROVED".equals(orderStatus)) {
+    if (!"PENDING".equals(orderStatus)) {
         PaymentResponse errorResponse = new PaymentResponse();
         errorResponse.setMessage("Order is not approved for payment. Current status: " + orderStatus);
         errorResponse.setStatus(PaymentStatus.FAILED);
@@ -117,7 +117,7 @@ public PaymentResponse processPayment(CreatePaymentCommand paymentRequest) {
 
     try {
         // --- TRƯỜNG HỢP THÀNH CÔNG ---
-        payment.setPaymentStatus(PaymentStatus.PENDING);
+        payment.setPaymentStatus(PaymentStatus.COMPLETED); // Tạm set là THANH TOÁN THÀNH CÔNG
         paymentRepositoryPort.save(payment); // Cập nhật DB
 
         PaymentResponse successResponse = new PaymentResponse();
@@ -125,7 +125,7 @@ public PaymentResponse processPayment(CreatePaymentCommand paymentRequest) {
         successResponse.setOrderId(new OrderId(paymentRequest.getOrderId()));
         successResponse.setCustomerId(new CustomerId(paymentRequest.getCustomerId()));
         successResponse.setAmount(paymentRequest.getAmount());
-        successResponse.setStatus(PaymentStatus.PENDING);
+        successResponse.setStatus(PaymentStatus.COMPLETED);
         successResponse.setMessage("Tạo thanh toán thành công, hãy tiến hành thanh toán");
         String vnpTxnRef = payment.getId().toString();
         String paymentUrl = vnPayOutputPort.generatePaymentUrl(payment, paymentRequest, vnpTxnRef, vnpPayUrl, vnpTmnCode, vnpHashSecret, vnpReturnUrl, paymentCache);
@@ -186,7 +186,7 @@ public PaymentResponse processPayment(CreatePaymentCommand paymentRequest) {
             String transactionStatus = params.get("vnp_TransactionStatus");
             Payment payment = paymentRepositoryPort.findById(new PaymentId(paymentId))
                     .orElseThrow(() -> new RuntimeException("Payment not found"));
-
+            System.out.println("Payment before update: " + payment);
             if ("00".equals(transactionStatus)) {
                 payment.complete();
                 payment.setTransactionId(params.get("vnp_TransactionNo"));
@@ -207,19 +207,39 @@ public PaymentResponse processPayment(CreatePaymentCommand paymentRequest) {
 
     @Override
     @Transactional
-    public void refundPayment(UUID paymentId, String transactionNo, String reason) {
-        Payment payment = paymentRepositoryPort.findById(new PaymentId(paymentId))
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+    public void refundPayment(UUID orderId, String reason) {
+        Optional<Payment> paymentOpt = paymentRepositoryPort.findByOrderId(new OrderId(orderId));
+        if (paymentOpt.isPresent()) {
+            Payment payment = paymentOpt.get();
+            if (payment.getPaymentStatus() == PaymentStatus.COMPLETED) {
+                // Comment out VNPay refund API call for manual processing
+                // vnPayOutputPort.requestRefund(payment, payment.getTransactionId(), reason, vnpRefundUrl, vnpTmnCode, vnpHashSecret);
 
-        vnPayOutputPort.requestRefund(payment, transactionNo, reason, vnpRefundUrl, vnpTmnCode, vnpHashSecret);
+                log.info("Manual refund processing for orderId: {}, paymentId: {}, reason: {}", orderId, payment.getId().value(), reason);
 
-        payment.refund();
-        paymentRepositoryPort.save(payment);
-        messagePublisherPort.publish(new PaymentRefundedEvent(payment));
+                payment.refund();
+                paymentRepositoryPort.save(payment);
+                messagePublisherPort.publish(new PaymentRefundedEvent(payment));
+
+                log.info("Refund completed manually for orderId: {}", orderId);
+            } else {
+                log.info("Payment not completed for orderId: {}", orderId);
+            }
+        } else {
+            log.info("Payment not found for orderId: {}", orderId);
+        }
     }
 
     @Override
     public void setOrderStatusForSimulation(UUID orderId, String status) {
         orderStatusCache.put(orderId.toString(), status);
+    }
+
+    @Override
+    public List<PaymentResponse> getAllPayments() {
+        List<Payment> payments = paymentRepositoryPort.findAll();
+        return payments.stream()
+                .map(payment -> paymentDataMapper.paymentToPaymentResponse(payment, "Retrieved", null))
+                .toList();
     }
 }

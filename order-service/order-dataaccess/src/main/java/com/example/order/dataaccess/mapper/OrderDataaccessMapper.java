@@ -77,15 +77,13 @@
 //        return items.stream()
 //                .map(entity -> {
 //                    // Dùng Builder của Domain
-//                    OrderItem item = OrderItem.builder()
+//                    return OrderItem.builder()
+//                            .orderItemId(new OrderItemId(entity.getId().getId())) // Map ID từ DB
 //                            .productId(new ProductId(entity.getProductId()))
 //                            .quantity(entity.getQuantity())
 //                            .price(new Money(entity.getPrice()))
+//                            .subTotal(new Money(entity.getSubTotal())) // Map subTotal từ DB
 //                            .build();
-//
-//                    // Gán ID (từ CSDL) cho Domain Entity
-//                    item.setId(new OrderItemId(entity.getId()));
-//                    return item;
 //                })
 //                .collect(Collectors.toList());
 //    }
@@ -98,8 +96,7 @@
 //                .map(item -> {
 //                    OrderItemEntity entity = new OrderItemEntity();
 //                    // ID của item được lấy từ Domain Entity
-//                    // (đã được gán lúc initializeOrder())
-//                    entity.setId(item.getId().value());
+//                    entity.setId(new OrderItemEntityId(item.getId().value(), orderEntity.getId()));
 //                    entity.setProductId(item.getProductId().value());
 //                    entity.setQuantity(item.getQuantity());
 //                    entity.setPrice(item.getPrice().getAmount());
@@ -131,6 +128,7 @@ package com.example.order.dataaccess.mapper;
 
 import com.example.order.dataaccess.entity.OrderEntity;
 import com.example.order.dataaccess.entity.OrderItemEntity;
+import com.example.order.dataaccess.entity.OrderItemEntityId;
 import com.example.order.domain.core.entity.Order;
 import com.example.order.domain.core.entity.OrderItem;
 import com.example.order.domain.core.valueobject.*; // Import các Value Objects
@@ -214,7 +212,7 @@ public class OrderDataaccessMapper {
                 .map(entity -> {
                     // Dùng Builder của Domain
                     return OrderItem.builder()
-//                            .orderItemId(new OrderItemId(entity.getId())) // Map ID từ DB
+                            .id(new OrderItemId(entity.getId())) // Map ID từ DB
                             .productId(new ProductId(entity.getProductId()))
                             .quantity(entity.getQuantity())
                             .price(new Money(entity.getPrice()))

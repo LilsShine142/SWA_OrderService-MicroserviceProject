@@ -29,7 +29,8 @@ CREATE TABLE order_items (
     sub_total NUMERIC(10,2) NOT NULL CHECK (sub_total >= 0), -- Tổng tiền của món, kiểm tra không âm
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Thời điểm tạo bản ghi, mặc định là thời gian hiện tại
     updated_at TIMESTAMP WITH TIME ZONE,                   -- Thời điểm cập nhật bản ghi cuối cùng
-    CONSTRAINT order_items_pkey PRIMARY KEY (id, order_id) -- Khóa chính ghép từ id và order_id
+    CONSTRAINT order_items_pkey PRIMARY KEY (id, order_id), -- Khóa chính là id và order_id
+    CONSTRAINT fk_order_items_order_id FOREIGN KEY (order_id) REFERENCES orders(id) -- Khóa ngoại
 );
 
 -- 5. Bảng Order logs

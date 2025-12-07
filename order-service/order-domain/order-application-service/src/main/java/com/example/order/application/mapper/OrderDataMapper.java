@@ -230,10 +230,14 @@ public class OrderDataMapper {
                 order.getDeliveryAddress().getPostalCode());
 
         return OrderSummaryResponse.builder()
+                .orderId(order.getId().value())
                 .orderTrackingId(order.getTrackingId().value())
                 .customerId(order.getCustomerId().value())
+                .restaurantId(order.getRestaurantId().value())
+                .items(order.getItems())
                 .totalAmount(order.getPrice().getAmount())
                 .orderStatus(order.getOrderStatus())
+//                .failureMessages(order.getFailureMessages())
                 .fullAddress(formattedAddress)
                 .createdAt(order.getCreatedAt())
                 .build();

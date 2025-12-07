@@ -2,7 +2,7 @@ package com.example.payment.messaging.kafka.consumer;
 
 import com.example.common_messaging.dto.event.OrderCreatedEvent;
 import com.example.common_messaging.dto.event.OrderRejectedEvent;
-import com.example.payment.dto.CreatePaymentCommand;
+import com.example.payment.dto.OrderEvent;
 import com.example.payment.ports.input.service.PaymentApplicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,17 +23,18 @@ public class PaymentKafkaListener {
                 event.getOrderId(), event.getTotalAmount());
 
         try {
-            // Chuyển đổi Event thành Command nội bộ của Payment
-            CreatePaymentCommand command = CreatePaymentCommand.builder()
-                    .orderId(event.getOrderId())
-                    .customerId(event.getCustomerId())
-                    .amount(event.getTotalAmount())
-                    .build();
+            // Tạo OrderEvent để cập nhật cache status
+            OrderEvent orderEvent = new OrderEvent(
+                    event.getOrderId(),
+                    event.getCustomerId(),
+                    event.getTotalAmount(),
+                    event.getStatus() // Lấy status từ event gửi từ order
+            );
 
-            // Gọi Service xử lý thanh toán
-            paymentApplicationService.processPayment(command);
+            // Gọi hàm cập nhật cache status của order
+            paymentApplicationService.processPaymentFromEvent(orderEvent);
 
-            log.info("✅ Đã khởi tạo thanh toán cho orderId: {}", event.getOrderId());
+            log.info("✅ Đã cập nhật cache status cho orderId: {}", event.getOrderId());
         } catch (Exception e) {
             log.error("❌ Lỗi khi xử lý OrderCreatedEvent: {}", e.getMessage());
             // Có thể thêm logic gửi event "PaymentFailed" ngược lại Order Service tại đây
@@ -43,12 +44,15 @@ public class PaymentKafkaListener {
     // 2. Lắng nghe sự kiện Order Rejected (Để hoàn tiền nếu cần)
     @KafkaListener(topics = "order-rejected", groupId = "payment-service-group")
     public void handleOrderRejected(OrderRejectedEvent event) {
-        log.info("Received OrderRejectedEvent for order id: {}", event.getOrderId());
-        // Giả sử logic hoàn tiền nằm ở đây
-        paymentApplicationService.refundPayment(
-                event.getOrderId(),
-                String.valueOf(event.getRestaurantId()), // Cẩn thận kiểu dữ liệu chỗ này
-                event.getReason()
-        );
+        log.info("💰 [PAYMENT-SERVICE] Nhận event OrderRejected: orderId={}, reason={}",
+                event.getOrderId(), event.getReason());
+
+        try {
+            // Gọi refund theo orderId
+            paymentApplicationService.refundPayment(event.getOrderId(), event.getReason());
+            log.info("✅ Đã thực hiện refund cho orderId: {}", event.getOrderId());
+        } catch (Exception e) {
+            log.error("❌ Lỗi xử lý OrderRejectedEvent: {}", e.getMessage());
+        }
     }
 }

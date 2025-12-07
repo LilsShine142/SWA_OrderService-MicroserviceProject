@@ -13,6 +13,7 @@ import com.example.restaurant.domain.core.valueobject.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -53,5 +54,21 @@ public class RestaurantRepositoryAdapter implements RestaurantRepositoryPort {
     public Optional<OrderApproval> findByOrderId(UUID orderId) {
         Optional<OrderApprovalEntity> entity = approvalJpaRepository.findByOrderId(orderId);
         return entity.map(approvalMapper::orderApprovalEntityToOrderApproval);
+    }
+
+    @Override
+    public List<Restaurant> findAllRestaurants() {
+        List<RestaurantEntity> entities = restaurantJpaRepository.findAll();
+        return entities.stream()
+                .map(restaurantMapper::toRestaurant)
+                .toList();
+    }
+
+    @Override
+    public List<OrderApproval> findAllOrderApprovals() {
+        List<OrderApprovalEntity> entities = approvalJpaRepository.findAll();
+        return entities.stream()
+                .map(approvalMapper::orderApprovalEntityToOrderApproval)
+                .toList();
     }
 }

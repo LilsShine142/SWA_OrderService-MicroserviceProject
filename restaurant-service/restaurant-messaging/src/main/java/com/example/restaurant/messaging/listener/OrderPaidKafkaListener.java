@@ -53,11 +53,11 @@ public class OrderPaidKafkaListener {
 
     private final RestaurantApplicationService restaurantApplicationService;
 
-    @KafkaListener(topics = "order-paid", groupId = "restaurant-service-group")
-    public void handleOrderPaid(OrderPaidEvent event) {
-        log.info("🔔 [Messaging Adapter] Nhận tin nhắn OrderPaid: {}", event.getOrderId());
-
-        // Chuyển tiếp vào lớp Application Core xử lý
-        restaurantApplicationService.completeOrderApproval(event);
-    }
+//    @KafkaListener(topics = "order-paid", groupId = "restaurant-service-group")
+//    public void handleOrderPaid(OrderPaidEvent event) {
+//        log.info("🔔 [Messaging Adapter] Nhận tin nhắn OrderPaid: {}", event.getOrderId());
+//
+//        // Chuyển tiếp vào lớp Application Core xử lý
+//        restaurantApplicationService.completeOrderApproval(event);
+//    }
 }

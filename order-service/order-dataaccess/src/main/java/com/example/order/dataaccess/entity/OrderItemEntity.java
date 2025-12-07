@@ -11,34 +11,32 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "order_items")
-@IdClass(OrderItemEntityId.class) // Báo cho JPA biết dùng lớp Khóa Composite
+@IdClass(OrderItemEntityId.class)
 public class OrderItemEntity {
 
     @Id
-    private UUID id; // [cite: 507]
+    @Column(name = "id")
+    private UUID id;
 
-    // Đây là phần thứ 2 của Khóa Composite
-    // Vừa là @Id, vừa là Foreign Key (Quan hệ Nhiều-Một)
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("order")
-    @JoinColumn(name = "order_id") // Tên cột trong CSDL [cite: 508, 511]
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id")
     private OrderEntity order;
 
     @Column(name = "product_id")
-    private UUID productId; // [cite: 508]
+    private UUID productId;
 
-    private BigDecimal price; // [cite: 508]
+    private BigDecimal price;
 
-    private Integer quantity; // [cite: 509]
+    private Integer quantity;
 
     @Column(name = "sub_total")
-    private BigDecimal subTotal; //
+    private BigDecimal subTotal;
 
     // Constructor rỗng (bắt buộc cho JPA)
     public OrderItemEntity() {}
 
-    // Getters, Setters, equals, hashCode (Bạn có thể dùng Lombok)
+    // Getters, Setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
     public OrderEntity getOrder() { return order; }
@@ -52,16 +50,17 @@ public class OrderItemEntity {
     public BigDecimal getSubTotal() { return subTotal; }
     public void setSubTotal(BigDecimal subTotal) { this.subTotal = subTotal; }
 
+    // equals, hashCode dựa trên id
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof OrderItemEntity)) return false;
         OrderItemEntity that = (OrderItemEntity) o;
-        return Objects.equals(id, that.id) && Objects.equals(order, that.order);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, order);
+        return Objects.hash(id);
     }
 }

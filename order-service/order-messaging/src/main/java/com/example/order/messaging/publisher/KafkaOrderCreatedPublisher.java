@@ -63,6 +63,7 @@ public class KafkaOrderCreatedPublisher implements OrderCreatedPaymentRequestPub
                 .customerId(order.getCustomerId().value())
                 .restaurantId(order.getRestaurantId().value())
                 .totalAmount(order.getPrice().getAmount())
+                .status(String.valueOf(order.getOrderStatus())) // Thêm status từ order
                 .items(itemDtos)
                 .build();
     }
@@ -79,4 +80,3 @@ public class KafkaOrderCreatedPublisher implements OrderCreatedPaymentRequestPub
                 .build();
     }
 }
-

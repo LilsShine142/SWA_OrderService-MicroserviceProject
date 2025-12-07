@@ -1,20 +1,24 @@
 package com.example.common_messaging.dto.event;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
-import java.math.BigDecimal;
-import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Builder
 public class PaymentCompletedEvent {
     private UUID orderId;
-    private UUID paymentId;
     private UUID customerId;
-    private BigDecimal amount;
-    private Instant createdAt;
+    private UUID restaurantId;
+    private List<OrderItemDto> items;
+
+    @Data
+    @Builder
+    public static class OrderItemDto {
+        private UUID productId;
+        private Integer quantity;
+        private java.math.BigDecimal price;
+    }
 }

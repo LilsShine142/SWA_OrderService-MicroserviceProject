@@ -2,6 +2,7 @@ package com.example.payment.ports.input.service;
 
 import com.example.payment.dto.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -26,9 +27,14 @@ public interface PaymentApplicationService {
     /**
      * Refund Payment (sandbox, SAGA compensation)
      */
-    void refundPayment(UUID paymentId, String transactionNo, String reason);
+    void refundPayment(UUID orderId, String reason);
 
     void processPaymentFromEvent(OrderEvent event);
+
+    /**
+     * Lấy tất cả payments
+     */
+    List<PaymentResponse> getAllPayments();
 
     /**
      * Method để simulate set order status (chỉ dùng cho test)

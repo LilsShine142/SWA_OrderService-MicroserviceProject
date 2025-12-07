@@ -5,11 +5,15 @@ import com.example.restaurant.application.dto.request.RejectOrderCommand;
 import com.example.restaurant.application.dto.response.ApiResponse;
 import com.example.restaurant.application.dto.response.OrderApprovalResponse;
 import com.example.restaurant.application.ports.input.service.RestaurantApplicationService;
+import com.example.restaurant.domain.core.entity.OrderApproval;
+import com.example.restaurant.domain.core.entity.Restaurant;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * REST Controller cho Restaurant Service.
@@ -64,5 +68,26 @@ public class RestaurantController {
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Restaurant Service is UP");
+    }
+
+    @GetMapping("/getall")
+    public ResponseEntity<List<Restaurant>> getAllRestaurants() {
+        log.info("Getting all restaurants");
+        List<Restaurant> restaurants = restaurantApplicationService.getAllRestaurants();
+        return ResponseEntity.ok(restaurants);
+    }
+
+    @GetMapping("/menu-items/getall")
+    public ResponseEntity<List<?>> getAllMenuItems() {
+        log.info("Getting all menu items");
+        // TODO: Implement when MenuItem entity is available
+        return ResponseEntity.ok(List.of());
+    }
+
+    @GetMapping("/order-approvals/getall")
+    public ResponseEntity<List<OrderApproval>> getAllOrderApprovals() {
+        log.info("Getting all order approvals");
+        List<OrderApproval> approvals = restaurantApplicationService.getAllOrderApprovals();
+        return ResponseEntity.ok(approvals);
     }
 }

@@ -7,12 +7,10 @@ import com.example.payment.persistence.repository.PaymentJpaRepository;
 import com.example.payment.ports.output.PaymentRepository;
 import com.example.payment.valueobject.OrderId;
 import com.example.payment.valueobject.PaymentId;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * ADAPTER PATTERN
@@ -51,5 +49,15 @@ public class PaymentRepositoryImpl implements PaymentRepository {
                 .map(paymentPersistenceDataMapper::paymentEntityToPayment);
     }
 
-}
+    @Override
+    public Optional<Payment> findByOrderId(OrderId orderId) {
+        Optional<PaymentEntity> paymentEntityOptional = paymentJpaRepository.findByOrderId(orderId.value());
+        return paymentEntityOptional
+                .map(paymentPersistenceDataMapper::paymentEntityToPayment);
+    }
 
+    @Override
+    public List<Payment> findAll() {
+        return List.of();
+    }
+}

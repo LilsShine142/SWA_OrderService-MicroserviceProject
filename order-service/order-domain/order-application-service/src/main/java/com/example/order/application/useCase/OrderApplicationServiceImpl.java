@@ -269,6 +269,7 @@ public class OrderApplicationServiceImpl implements OrderApplicationService {
         OrderPaidEvent event = OrderPaidEvent.builder()
                 .orderId(order.getId().value())
                 .restaurantId(order.getRestaurantId().value())
+                .status("PAID") // Thêm status
                 .items(order.getItems().stream()
                         .map(item -> OrderPaidEvent.OrderItemDto.builder()
                                 .productId(item.getProductId().value())

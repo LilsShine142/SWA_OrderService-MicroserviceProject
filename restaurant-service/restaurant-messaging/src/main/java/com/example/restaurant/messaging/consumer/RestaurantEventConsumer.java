@@ -12,21 +12,21 @@ import org.springframework.stereotype.Service;
 public class RestaurantEventConsumer {
     private final RestaurantApplicationService restaurantService;
 
-    @KafkaListener(
-            topics = "payment-completed",
-            containerFactory = "paymentCompletedKafkaListenerContainerFactory"
-    )
-    public void handlePaymentCompleted(PaymentCompletedEvent event) {
-        System.out.println("📥 Nhận PaymentCompletedEvent: " + event);
-        restaurantService.processOrderApproval(event);
-    }
+//    @KafkaListener(
+//            topics = "payment-completed",
+//            containerFactory = "paymentCompletedKafkaListenerContainerFactory"
+//    )
+//    public void handlePaymentCompleted(PaymentCompletedEvent event) {
+//        System.out.println("📥 Nhận PaymentCompletedEvent: " + event);
+//        restaurantService.processOrderApproval(event);
+//    }
 
-    @KafkaListener(
-            topics = "payment-failed",
-            containerFactory = "paymentFailedKafkaListenerContainerFactory"
-    )
-    public void handlePaymentFailed(PaymentFailedEvent event) {
-        System.out.println("📥 Nhận PaymentFailedEvent: " + event);
-        restaurantService.processPaymentFailed(event);
-    }
+//    @KafkaListener(
+//            topics = "payment-failed",
+//            containerFactory = "paymentFailedKafkaListenerContainerFactory"
+//    )
+//    public void handlePaymentFailed(PaymentFailedEvent event) {
+//        System.out.println("📥 Nhận PaymentFailedEvent: " + event);
+//        restaurantService.processPaymentFailed(event);
+//    }
 }

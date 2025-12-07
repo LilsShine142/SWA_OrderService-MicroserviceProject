@@ -13,21 +13,21 @@ import java.util.UUID;
  */
 public class OrderItemEntityId implements Serializable {
 
-    private Long id; // Khớp với id BIGINT [cite: 507]
-    private UUID order; // Khớp với order_id UUID [cite: 508]
+    private UUID id; // Khớp với id UUID trong OrderItemEntity
+    private UUID order; // Khớp với order_id UUID (foreign key)
 
     // Constructor rỗng
     public OrderItemEntityId() {}
 
     // Constructor đầy đủ
-    public OrderItemEntityId(Long id, UUID order) {
+    public OrderItemEntityId(UUID id, UUID order) {
         this.id = id;
         this.order = order;
     }
 
     // Getters, Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
     public UUID getOrder() { return order; }
     public void setOrder(UUID order) { this.order = order; }
 

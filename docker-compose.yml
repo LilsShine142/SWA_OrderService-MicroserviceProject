@@ -238,7 +238,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8671/eureka/
       - SERVER_PORT=8083
 
-  # Cấu hình Database
+  # --- ORDER DB ---
   order-db:
     image: postgres:14
     container_name: order-db
@@ -248,7 +248,13 @@ services:
       POSTGRES_DB: order_service
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
+    volumes:
+      # 1. Nạp file SQL để tạo bảng (Chỉ chạy lần đầu tiên)
+      - ./order_schema.sql:/docker-entrypoint-initdb.d/init_schema.sql
+      # 2. Lưu trữ dữ liệu lâu dài (Để không bị mất data khi tắt container)
+      - ./postgres_data/order:/var/lib/postgresql/data
 
+  # --- RESTAURANT DB ---
   restaurant-db:
     image: postgres:14
     container_name: restaurant-db
@@ -258,7 +264,12 @@ services:
       POSTGRES_DB: restaurant_service
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
+    volumes:
+      # Bạn cần tạo file restaurant_schema.sql tương tự nhé
+      - ./restaurant_schema.sql:/docker-entrypoint-initdb.d/init_schema.sql
+      - ./postgres_data/restaurant:/var/lib/postgresql/data
 
+  # --- PAYMENT DB ---
   payment-db:
     image: postgres:14
     container_name: payment-db
@@ -268,6 +279,10 @@ services:
       POSTGRES_DB: payment_service
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
+    volumes:
+      # Bạn cần tạo file payment_schema.sql tương tự nhé
+      - ./payment_schema.sql:/docker-entrypoint-initdb.d/init_schema.sql
+      - ./postgres_data/payment:/var/lib/postgresql/data
 
   order-service:
     build:

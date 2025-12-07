@@ -1,6 +1,8 @@
 package com.example.restaurant.application.dto.request;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -31,11 +33,15 @@ public class ApproveOrderCommand {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class OrderItemDto {
-        @NotNull
+        @NotNull(message = "ID sản phẩm không được để trống")
         private UUID productId;
-        @NotNull
+
+        @NotNull(message = "Số lượng không được để trống")
+        @Min(value = 1, message = "Số lượng phải ít nhất là 1")
         private Integer quantity;
-        @NotNull
+
+        @NotNull(message = "Giá sản phẩm không được để trống")
+        @DecimalMin(value = "0.01", message = "Giá sản phẩm phải lớn hơn 0")
         private java.math.BigDecimal price;
     }
 }
