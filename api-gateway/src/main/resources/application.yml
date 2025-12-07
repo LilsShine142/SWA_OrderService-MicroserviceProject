@@ -18,7 +18,7 @@ spring:
           # URI: lb:// Tên service viết HOA trên Eureka
           uri: lb://ORDER-SERVICE
           predicates:
-            - Path=/api/** # Định tuyến tất cả yêu cầu bắt đầu bằng /api/orders/
+            - Path=/api/orders** # Định tuyến tất cả yêu cầu bắt đầu bằng /api/orders/
             # Bạn có thể thêm bộ lọc (Filters) như AuthenticationFilter tại đây nếu cần
             # filters:
             # - AuthenticationFilter
