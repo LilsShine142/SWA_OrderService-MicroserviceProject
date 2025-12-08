@@ -39,7 +39,7 @@ public class OrderController {
     }
 
     // 3. User gọi API Hủy đơn
-    @PutMapping("/{trackingId}/cancel")
+    @PutMapping("/{orderId}/cancel")
     public ResponseEntity<CancelOrderResponse> cancelOrder(
             @PathVariable UUID trackingId,
             @RequestBody Map<String, String> requestBody) {

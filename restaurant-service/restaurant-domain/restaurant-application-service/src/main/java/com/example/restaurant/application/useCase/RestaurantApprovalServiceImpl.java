@@ -209,6 +209,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -247,14 +248,14 @@ public class RestaurantApprovalServiceImpl implements RestaurantApplicationServi
             // GỌI DOMAIN SERVICE – ĐÚNG LUỒNG SAGA
             OrderApprovedEvent approvedEvent = domainService.approveOrder(restaurant, approval, event.getItems());
             publisherPort.publish(approvedEvent);
-            log.info("Order {} APPROVED and OrderApprovedEvent published", event.getOrderId());
+            System.out.println("Order {} APPROVED and OrderApprovedEvent published"+event.getOrderId());
 
         } catch (IllegalStateException e) {
             // Domain service ném lỗi → từ chối đơn
             OrderRejectedEvent rejectedEvent = domainService.rejectOrder(
                     restaurant, approval, event.getItems(), e.getMessage());
             publisherPort.publish(rejectedEvent);
-            log.warn("Order {} REJECTED: {}", event.getOrderId(), e.getMessage());
+            System.out.println("Order {} REJECTED: {}"+ event.getOrderId()+ e.getMessage());
 
         } catch (Exception e) {
             // Lỗi bất ngờ → từ chối đơn với lý do hệ thống
@@ -291,29 +292,31 @@ public class RestaurantApprovalServiceImpl implements RestaurantApplicationServi
         approval.setId(new ApprovalId(UUID.randomUUID()));
         repositoryPort.saveApproval(approval);
 
-        log.info("Order {} REJECTED due to payment failure", event.getOrderId());
+        System.out.println("Order {} REJECTED due to payment failure"+ event.getOrderId());
     }
 
     // APPROVE
     @Override
     public OrderApprovalResponse approveOrder(ApproveOrderCommand command) {
-        // Kiểm tra trạng thái order từ cache
-        String orderStatus = orderStatusCache.get(command.getOrderId().toString());
-        if (!"PAID".equals(orderStatus)) {
+        // Tìm approval hiện tại theo orderId
+        Optional<OrderApproval> existingApprovalOpt = repositoryPort.findByOrderId(command.getOrderId());
+        if (existingApprovalOpt.isEmpty()) {
+            return restaurantDataMapper.toFailureResponse(command.getOrderId(), "Không tìm thấy đơn hàng để duyệt.");
+        }
+
+        OrderApproval existingApproval = existingApprovalOpt.get();
+        System.out.println("Existing approval status: " + existingApproval.getApprovalStatus());
+        if (existingApproval.getApprovalStatus() != ApprovalStatus.PAID) {
             return restaurantDataMapper.toFailureResponse(command.getOrderId(),
-                    "Đơn hàng chưa được thanh toán. Trạng thái hiện tại: " + orderStatus);
+                    "Đơn hàng chưa được thanh toán. Trạng thái hiện tại: " + existingApproval.getApprovalStatus());
         }
 
         try {
             Restaurant restaurant = repositoryPort.findById(new RestaurantId(command.getRestaurantId()))
                     .orElseThrow(() -> new IllegalArgumentException("Restaurant không tồn tại"));
 
-            OrderApproval approval = restaurantDataMapper.approveOrderCommandToOrderApproval(command);
-            approval.setId(new ApprovalId(UUID.randomUUID()));
-            approval = approval.toBuilder()
-                    .approvalStatus(ApprovalStatus.PENDING)
-                    .createdAt(ZonedDateTime.now())
-                    .build();
+            // Cập nhật status thành APPROVED
+            existingApproval.setApprovalStatus(ApprovalStatus.APPROVED);
 
             List<OrderItem> orderItems = command.getItems().stream()
                     .map(item -> OrderItem.builder()
@@ -324,12 +327,12 @@ public class RestaurantApprovalServiceImpl implements RestaurantApplicationServi
                             .build())
                     .collect(Collectors.toList());
 
-            OrderApprovedEvent approvedEvent = domainService.approveOrder(restaurant, approval, orderItems);
-
-            repositoryPort.saveApproval(approval);
+            OrderApprovedEvent approvedEvent = domainService.approveOrder(restaurant, existingApproval, orderItems);
+            System.out.println("Approving order for restaurant: " + restaurant);
+            repositoryPort.saveApproval(existingApproval);
             publisherPort.publish(approvedEvent);
 
-            return restaurantDataMapper.toSuccessResponse(approval, "Duyệt đơn hàng thành công");
+            return restaurantDataMapper.toSuccessResponse(existingApproval, "Duyệt đơn hàng thành công");
 
         } catch (IllegalStateException e) {
             return restaurantDataMapper.toFailureResponse(command.getOrderId(), e.getMessage());
@@ -341,24 +344,33 @@ public class RestaurantApprovalServiceImpl implements RestaurantApplicationServi
 
     @Override
     public OrderApprovalResponse rejectOrder(RejectOrderCommand command) {
+        // Tìm approval hiện tại theo orderId
+        Optional<OrderApproval> existingApprovalOpt = repositoryPort.findByOrderId(command.getOrderId());
+        if (existingApprovalOpt.isEmpty()) {
+            return restaurantDataMapper.toFailureResponse(command.getOrderId(), "Không tìm thấy đơn hàng để từ chối.");
+        }
+
+        OrderApproval existingApproval = existingApprovalOpt.get();
+        System.out.println("Existing approval status: " + existingApproval.getApprovalStatus());
+        if (existingApproval.getApprovalStatus() != ApprovalStatus.PAID) {
+            return restaurantDataMapper.toFailureResponse(command.getOrderId(),
+                    "Đơn hàng chưa được thanh toán. Trạng thái hiện tại: " + existingApproval.getApprovalStatus());
+        }
+
         try {
             Restaurant restaurant = repositoryPort.findById(new RestaurantId(command.getRestaurantId()))
                     .orElseThrow(() -> new IllegalArgumentException("Restaurant không tồn tại"));
-
-            OrderApproval approval = restaurantDataMapper.rejectOrderCommandToOrderApproval(command);
-            approval.setId(new ApprovalId(UUID.randomUUID()));
-            approval = approval.toBuilder()
-                    .approvalStatus(ApprovalStatus.PENDING)
-                    .createdAt(ZonedDateTime.now())
-                    .build();
+            System.out.println("Rejecting order for restaurant: " + restaurant);
+            // Cập nhật status thành REJECTED
+            existingApproval.setApprovalStatus(ApprovalStatus.REJECTED);
 
             OrderRejectedEvent rejectedEvent = domainService.rejectOrder(
-                    restaurant, approval, List.of(), command.getReason());
+                    restaurant, existingApproval, List.of(), command.getReason());
 
-            repositoryPort.saveApproval(approval);
+            repositoryPort.saveApproval(existingApproval);
             publisherPort.publish(rejectedEvent);
 
-            return restaurantDataMapper.toSuccessResponse(approval,
+            return restaurantDataMapper.toSuccessResponse(existingApproval,
                     "Từ chối đơn hàng thành công: " + command.getReason());
 
         } catch (IllegalStateException | IllegalArgumentException e) {
@@ -382,7 +394,8 @@ public class RestaurantApprovalServiceImpl implements RestaurantApplicationServi
         OrderApproval orderApproval = OrderApproval.builder()
                 .orderId(event.getOrderId())
                 .restaurantId(new RestaurantId(event.getRestaurantId()))
-                .approvalStatus(ApprovalStatus.PENDING) // Logic nghiệp vụ set default
+                .approvalStatus(ApprovalStatus.PAID) // Logic nghiệp vụ set default
+                .createdAt(ZonedDateTime.now())
                 .build();
 
         orderApproval.setId(new ApprovalId(UUID.randomUUID()));

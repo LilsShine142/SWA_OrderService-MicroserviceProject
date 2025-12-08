@@ -96,6 +96,22 @@ public class Order extends AggregateRoot<OrderId> {
         orderStatus = OrderStatus.APPROVED;
     }
 
+    public void fail(String reason) {
+        if (orderStatus == OrderStatus.APPROVED) {
+            throw new OrderDomainException("Không thể thất bại đơn hàng đã duyệt!");
+        }
+        orderStatus = OrderStatus.CANCELLED;
+        this.failureMessages = reason;
+    }
+
+    public void reject(String reason) {
+        if (orderStatus == OrderStatus.APPROVED) {
+            throw new OrderDomainException("Không thể từ chối đơn hàng đã duyệt!");
+        }
+        orderStatus = OrderStatus.REJECTED;
+        this.failureMessages = reason;
+    }
+
     // --- Các quy tắc (Business Rules) nội bộ, dùng private ---
 
     private void validateTotalPrice() {

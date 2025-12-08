@@ -47,4 +47,8 @@ public interface OrderApplicationService {
     void payOrder(UUID orderId);    // Xử lý khi Payment báo thành công
 
     void approveOrder(UUID orderId); // Xử lý khi Restaurant báo duyệt
+
+    void failOrder(UUID orderId, String reason); // Xử lý khi Payment báo thất bại
+
+    void rejectOrder(UUID orderId, String reason); // Xử lý khi Restaurant báo từ chối
 }

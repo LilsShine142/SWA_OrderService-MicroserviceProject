@@ -4,40 +4,60 @@ import com.example.common_messaging.dto.event.OrderCreatedEvent;
 import com.example.common_messaging.dto.event.OrderRejectedEvent;
 import com.example.payment.dto.OrderEvent;
 import com.example.payment.ports.input.service.PaymentApplicationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class PaymentKafkaListener {
 
+    private final StringRedisTemplate redisTemplate;
+    private final ObjectMapper objectMapper;
     private final PaymentApplicationService paymentApplicationService;
 
     // 1. Lắng nghe sự kiện Order Created (Khớp với KafkaOrderCreatedPublisher bên Order Service)
     @KafkaListener(topics = "order-created", groupId = "payment-service-group")
     public void handleOrderCreated(OrderCreatedEvent event) {
-        log.info("💰 [PAYMENT-SERVICE] Nhận event OrderCreated: orderId={}, amount={}",
-                event.getOrderId(), event.getTotalAmount());
-
+        System.out.println("NHẬN THÀNH CÔNG OrderCreatedEvent TỪ KAFKA!!!");
+        System.out.println("Order ID      : " + event.getOrderId());
+        System.out.println("Customer ID   : " + event.getCustomerId());
+        System.out.println("Total Amount  : " + event.getTotalAmount());
+        System.out.println("Status        : " + event.getStatus());
+        System.out.println("=".repeat(120));
         try {
-            // Tạo OrderEvent để cập nhật cache status
-            OrderEvent orderEvent = new OrderEvent(
-                    event.getOrderId(),
-                    event.getCustomerId(),
-                    event.getTotalAmount(),
-                    event.getStatus() // Lấy status từ event gửi từ order
-            );
+            System.out.println("📥 [PAYMENT] Nhận OrderCreatedEvent: orderId=" + event.getOrderId() + ", status=" + event.getStatus());
 
-            // Gọi hàm cập nhật cache status của order
-            paymentApplicationService.processPaymentFromEvent(orderEvent);
+//            2. Tạo Object để lưu vào Redis
+            OrderCreatedEvent redisDto = OrderCreatedEvent.builder()
+                    .orderId(event.getOrderId())
+                    .customerId(event.getCustomerId())
+                    .totalAmount(event.getTotalAmount())
+                    .status(event.getStatus()) // Mặc định trạng thái ban đầu
+                    .restaurantId(event.getRestaurantId())
+                    .items(event.getItems())
+                    .build();
+            System.out.println("📝 Tạo Redis DTO: " + redisDto);
+            // 3. Convert Object -> JSON String
+            String jsonValue = objectMapper.writeValueAsString(redisDto);
+            System.out.println("🔄 Chuyển đổi JSON String: " + jsonValue);
+            // 4. Lưu vào Redis
+            String key = "PAYMENT_ORDER:" + event.getOrderId();
+            // TTL 30 phút
+            redisTemplate.opsForValue().set(key, jsonValue, 30, TimeUnit.MINUTES);
 
-            log.info("✅ Đã cập nhật cache status cho orderId: {}", event.getOrderId());
+            System.out.println("✅ Đã cache Object Order vào Redis: " + jsonValue);
+
+            System.out.println("✅ Đã cache Order " + event.getOrderId() + " vào Redis (TTL 30p)");
+
         } catch (Exception e) {
-            log.error("❌ Lỗi khi xử lý OrderCreatedEvent: {}", e.getMessage());
-            // Có thể thêm logic gửi event "PaymentFailed" ngược lại Order Service tại đây
+            System.out.println("❌ Lỗi xử lý OrderCreatedEvent: " + e.getMessage() + e);
         }
     }
 

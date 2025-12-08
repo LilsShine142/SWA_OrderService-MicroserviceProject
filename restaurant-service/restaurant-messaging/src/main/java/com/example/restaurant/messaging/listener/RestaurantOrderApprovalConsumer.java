@@ -3,31 +3,37 @@ package com.example.restaurant.messaging.listener;
 import com.example.common_messaging.dto.event.OrderPaidEvent;
 import com.example.restaurant.application.ports.input.service.RestaurantApplicationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Slf4j
+@Component
 @RequiredArgsConstructor
 public class RestaurantOrderApprovalConsumer {
 
     private final RestaurantApplicationService restaurantService;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @KafkaListener(
             topics = "order-paid",
-            groupId = "restaurant-group",
-            containerFactory = "kafkaListenerContainerFactory"
+            groupId = "restaurant-service-group",  // PHẢI GIỐNG TRÊN
+            containerFactory = "kafkaListenerContainerFactory"  // ĐÚNG TÊN BEAN
     )
-    public void consumeOrderPaid(OrderPaidEvent orderEvent) {
-        System.out.println("Nhận OrderPaidEvent: orderId=" + orderEvent.getOrderId());
+    public void consumeOrderPaid(OrderPaidEvent event) {
+        System.out.println("[RESTAURANT] NHẬN OrderPaidEvent → orderId: {}, status: {}" +
+                event.getOrderId() + event.getStatus());
+
+        if (!"PAID".equals(event.getStatus())) {
+            log.warn("Order không phải PAID → bỏ qua: {}", event.getOrderId());
+            return;
+        }
 
         try {
-            // Tự động thêm order vào bảng OrderApproval với status PENDING
-            restaurantService.completeOrderApproval(orderEvent);
-            System.out.println("Đã thêm order vào danh sách chờ duyệt: orderId=" + orderEvent.getOrderId());
+            restaurantService.completeOrderApproval(event);
+            System.out.println("ĐÃ XỬ LÝ THÀNH CÔNG – OrderId: {} được thêm vào chờ duyệt!"+ event.getOrderId());
         } catch (Exception e) {
-            System.out.println("Lỗi thêm order orderId=" + orderEvent.getOrderId() + ": " + e.getMessage());
+            System.out.println("LỖI XỬ LÝ OrderPaidEvent orderId={}: {}"+ event.getOrderId()+ e.getMessage()+ e);
+            throw e; // Để Kafka retry nếu cần
         }
     }
 }

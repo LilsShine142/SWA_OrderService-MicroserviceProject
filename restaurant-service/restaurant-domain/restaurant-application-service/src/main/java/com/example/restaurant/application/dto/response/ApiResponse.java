@@ -1,10 +1,14 @@
 package com.example.restaurant.application.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@NoArgsConstructor // <--- QUAN TRỌNG: Để Jackson khởi tạo object
+@AllArgsConstructor
 public class ApiResponse<T> {
     private boolean success;
     private String message;

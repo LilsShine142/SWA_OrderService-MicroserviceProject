@@ -27,11 +27,32 @@ spring:
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
-      group-id: restaurant-service-group
-      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.use.type.headers: false
     producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+        spring:
+          json:
+            value:
+              default:
+                type: "com.example.common_messaging.dto.event.OrderPaidEvent"
+            add:
+              type:
+                headers=false:
+        spring.json.value.default.type: "com.example.common_messaging.dto.event"
+
+#    consumer:
+#      group-id: restaurant-service-group
+#      auto-offset-reset: earliest
+#      properties:
+#        spring.json.trusted.packages: "*"
+#    producer:
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#      properties:
+#        spring.json.add.type.headers: false
 
 logging:
   level:

@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.kafka.annotation.EnableKafka;
+
 import java.util.TimeZone;
 
 /**
@@ -15,6 +17,7 @@ import java.util.TimeZone;
 @EnableJpaRepositories(basePackages = "com.example.order.dataaccess.repository")
 @EntityScan(basePackages = "com.example.order.dataaccess.entity")// Chỉ định JPA Entities
 @EnableDiscoveryClient
+@EnableKafka
 public class OrderContainerApplication {
 
 	public static void main(String[] args) {

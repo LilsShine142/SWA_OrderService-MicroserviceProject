@@ -10,5 +10,6 @@ public enum OrderStatus {
     PAID, // Đã thanh toán
     APPROVED, // Đã duyệt (chờ giao hàng)
     CANCELLING, // Đang trong quá trình hủy (nếu dùng Saga)
-    CANCELLED // Đã hủy
+    CANCELLED, // Đã hủy
+    REJECTED // Đã từ chối
 }

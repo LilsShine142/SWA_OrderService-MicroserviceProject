@@ -119,18 +119,21 @@
 
 package com.example.order.application.useCase;
 
+import com.example.common_messaging.dto.event.OrderRejectedEvent;
 import com.example.order.application.dto.*;
 import com.example.order.application.ports.input.service.OrderApplicationService;
 import com.example.order.application.ports.output.OrderRepository;
 import com.example.order.application.ports.output.publisher.OrderCancelledEventPublisher;
 import com.example.order.application.ports.output.publisher.OrderCreatedPaymentRequestPublisher;
 import com.example.order.application.mapper.OrderDataMapper;
+import com.example.order.application.ports.output.publisher.OrderFailedPublisher;
 import com.example.order.application.ports.output.publisher.OrderPaidPublisher;
 import com.example.order.domain.core.entity.Order;
 import com.example.order.domain.core.event.OrderCancelledEvent;
 import com.example.order.domain.core.event.OrderCreatedEvent;
 import com.example.order.domain.core.exception.OrderNotFoundException;
 import com.example.order.domain.core.service.OrderDomainService;
+import com.example.order.domain.core.valueobject.OrderStatus;
 import com.example.order.domain.core.valueobject.TrackingId;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -148,22 +151,23 @@ public class OrderApplicationServiceImpl implements OrderApplicationService {
     private final OrderCreatedPaymentRequestPublisher orderCreatedPublisher;
     private final OrderCancelledEventPublisher orderCancelledPublisher;
     private final OrderPaidPublisher orderPaidPublisher;
+    private final OrderFailedPublisher orderFailedPublisher;
     private final OrderDataMapper orderDataMapper;
     private final OrderDomainService orderDomainService;
 
     // Constructor Injection
     public OrderApplicationServiceImpl(OrderRepository orderRepository,
-                                       // ❌ ĐÃ XÓA @Qualifier("logOnly...") để dùng Kafka thật
                                        OrderCreatedPaymentRequestPublisher orderCreatedPublisher,
-                                       // Nếu bạn chưa làm Kafka cho Cancel thì giữ Qualifier này,
-                                       // nếu làm rồi thì xóa luôn Qualifier đi.
-                                       OrderCancelledEventPublisher orderCancelledPublisher, OrderPaidPublisher orderPaidPublisher,
+                                       OrderCancelledEventPublisher orderCancelledPublisher,
+                                       OrderPaidPublisher orderPaidPublisher,
+                                       OrderFailedPublisher orderFailedPublisher,
                                        OrderDataMapper orderDataMapper,
                                        OrderDomainService orderDomainService) {
         this.orderRepository = orderRepository;
         this.orderCreatedPublisher = orderCreatedPublisher;
         this.orderCancelledPublisher = orderCancelledPublisher;
         this.orderPaidPublisher = orderPaidPublisher;
+        this.orderFailedPublisher = orderFailedPublisher;
         this.orderDataMapper = orderDataMapper;
         this.orderDomainService = orderDomainService;
     }
@@ -255,14 +259,17 @@ public class OrderApplicationServiceImpl implements OrderApplicationService {
     @Override
     @Transactional
     public void payOrder(UUID orderId) {
-        log.info("💰 Xử lý thanh toán thành công cho đơn: {}", orderId);
+        System.out.println("💰 Xử lý thanh toán thành công cho đơn: {}" + orderId);
 
         // 1. Tìm đơn hàng
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
-
+        System.out.println("✅ Tìm thấy đơn hàng: {}" + order);
         // 2. Chuyển trạng thái sang PAID (Logic trong Domain Entity)
-        order.pay();
+//        order.pay();
+        if (order.getOrderStatus() != OrderStatus.PENDING) {
+            throw new IllegalStateException("Chỉ đơn hàng PENDING mới có thể thanh toán!");
+        }
         orderRepository.save(order);
 
         // 3. Bắn event sang Restaurant (để họ biết có đơn mới đã trả tiền)
@@ -277,8 +284,46 @@ public class OrderApplicationServiceImpl implements OrderApplicationService {
                                 .build())
                         .collect(Collectors.toList()))
                 .build();
-
+        System.out.println("📤 Bắn OrderPaidEvent sang Restaurant cho đơn: {}" + event);
         orderPaidPublisher.publish(event);
+    }
+
+    public void failOrder(UUID orderId, String reason) {
+        System.out.println("Thanh toán thất bại cho đơn hàng: " + orderId + " | Lý do: " + reason);
+
+        // 1. Tìm đơn hàng
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Không tìm thấy đơn hàng: " + orderId));
+
+        System.out.println("Tìm thấy đơn hàng cần hủy: " + order.getId().value() + " | Trạng thái hiện tại: " + order.getOrderStatus());
+
+        // 2. Chuyển trạng thái sang CANCELLED hoặc FAILED (tùy bạn định nghĩa trong Domain)
+        // Giả sử bạn có method fail() hoặc cancel() trong Order entity
+        order.fail(reason); // hoặc order.cancel("Payment failed: " + reason);
+
+        // 3. Lưu lại trạng thái mới
+        orderRepository.save(order);
+
+        // 4. Bắn event để các service khác biết (Restaurant, Notification, Customer, v.v.)
+        OrderFailedEvent event = OrderFailedEvent.builder()
+                .orderId(order.getId().value())
+                .customerId(order.getCustomerId().value())
+                .restaurantId(order.getRestaurantId().value())
+                .reason(reason)
+                .status("FAILED") // hoặc "CANCELLED"
+                .items(order.getItems().stream()
+                        .map(item -> OrderFailedEvent.OrderItemDto.builder()
+                                .productId(item.getProductId().value())
+                                .quantity(item.getQuantity())
+                                .price(item.getPrice().getAmount())
+                                .build())
+                        .toList())
+                .build();
+        System.out.println("📤 Bắn OrderFailedEvent cho đơn hàng: " + event);
+        // Bắn event (nếu bạn có publisher riêng cho failed)
+        orderFailedPublisher.publish(event);
+
+        System.out.println("ĐÃ CẬP NHẬT ĐƠN HÀNG THẤT BẠI: {} | Lý do: {}"+ orderId + reason);
     }
 
     @Override
@@ -293,6 +338,43 @@ public class OrderApplicationServiceImpl implements OrderApplicationService {
         order.approve();
         orderRepository.save(order);
 
-        // Có thể bắn thêm event OrderConfirmed gửi về cho Customer biết (nếu cần)
+//        // 3. Bắn event OrderApproved để thông báo cho các service khác
+//        OrderApprovedEvent event = OrderApprovedEvent.builder()
+//                .orderId(order.getId().value())
+//                .restaurantId(order.getRestaurantId().value())
+//                .status("APPROVED")
+//                .items(order.getItems().stream()
+//                        .map(item -> OrderApprovedEvent.OrderItemDto.builder()
+//                                .productId(item.getProductId().value())
+//                                .productName(item.getProduct().getName()) // Giả sử có getProduct().getName()
+//                                .quantity(item.getQuantity())
+//                                .price(item.getPrice().getAmount())
+//                                .build())
+//                        .collect(Collectors.toList()))
+//                .build();
+//        log.info("📤 Bắn OrderApprovedEvent cho đơn hàng: {}", event);
+//        orderApprovedPublisher.publish(event);
+    }
+
+    @Override
+    @Transactional
+    public void rejectOrder(UUID orderId, String reason) {
+        log.info("🏠 Nhà hàng từ chối đơn hàng: {} | Lý do: {}", orderId, reason);
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
+
+        // 2. Chuyển trạng thái sang REJECTED
+        order.reject(reason);
+        orderRepository.save(order);
+
+//        // 3. Bắn event OrderRejected để thông báo cho Customer và Payment
+//        OrderRejectedEvent event = OrderRejectedEvent.builder()
+//                .orderId(order.getId().value())
+//                .restaurantId(order.getRestaurantId().value())
+//                .reason(reason)
+//                .build();
+//        log.info("📤 Bắn OrderRejectedEvent cho đơn hàng: {}", event);
+//        orderRejectedPublisher.publish(event);
     }
 }

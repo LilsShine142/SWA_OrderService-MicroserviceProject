@@ -1,5 +1,4 @@
-// File 2: common-messaging/src/main/java/com/example/common_messaging/dto/event/PaymentFailedIntegrationEvent.java
-package com.example.common_messaging.dto.event;
+package com.example.payment.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +17,5 @@ public class PaymentFailedEvent {
     private UUID paymentId;
     private UUID customerId;
     private BigDecimal amount;
-    private String status;
     private String reason;
 }

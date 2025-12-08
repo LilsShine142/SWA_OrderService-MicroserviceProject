@@ -1,4 +1,4 @@
-package com.example.common_messaging.dto.event;
+package com.example.order.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,14 +13,12 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor // <--- QUAN TRỌNG: Để Jackson khởi tạo object
 @AllArgsConstructor
-public class PaymentCompletedEvent {
+public class OrderFailedEvent {
     private UUID orderId;
-    private UUID paymentId;
     private UUID customerId;
-    private String transactionId;
-    private BigDecimal amount;
     private UUID restaurantId;
-    private String status;
+    private String status; // Thêm trường status
+    private String reason; // Lý do thất bại
     private List<OrderItemDto> items;
 
     @Data
@@ -29,7 +27,9 @@ public class PaymentCompletedEvent {
     @AllArgsConstructor
     public static class OrderItemDto {
         private UUID productId;
+        private String productName;
         private Integer quantity;
-        private java.math.BigDecimal price;
+        private BigDecimal price;
     }
 }
+

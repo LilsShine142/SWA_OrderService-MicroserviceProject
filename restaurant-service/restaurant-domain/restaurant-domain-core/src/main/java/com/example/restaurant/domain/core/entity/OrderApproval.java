@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder(toBuilder = true)
@@ -21,18 +22,18 @@ public class OrderApproval extends AggregateRoot<ApprovalId> {
     private ZonedDateTime updatedAt;
 
     public void approve() {
-        if (approvalStatus != ApprovalStatus.PENDING) {
-            throw new IllegalStateException("Cannot approve non-pending approval");
-        }
+//        if (approvalStatus != ApprovalStatus.PAID) {
+//            throw new IllegalStateException("Cannot approve non-pending approval");
+//        }
         approvalStatus = ApprovalStatus.APPROVED;
         approvedAt = ZonedDateTime.now();
         updatedAt = ZonedDateTime.now();
     }
 
     public void reject(String reason) {
-        if (approvalStatus != ApprovalStatus.PENDING) {
-            throw new IllegalStateException("Cannot reject non-pending approval");
-        }
+//        if (approvalStatus != ApprovalStatus.PAID) {
+//            throw new IllegalStateException("Cannot reject non-pending approval");
+//        }
         approvalStatus = ApprovalStatus.REJECTED;
         rejectionReason = reason;
         updatedAt = ZonedDateTime.now();

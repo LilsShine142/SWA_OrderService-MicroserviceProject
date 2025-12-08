@@ -1,4 +1,4 @@
-package com.example.common_messaging.dto.event;
+package com.example.payment.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +21,7 @@ public class PaymentCompletedEvent {
     private BigDecimal amount;
     private UUID restaurantId;
     private String status;
-    private List<OrderItemDto> items;
+    private List<com.example.common_messaging.dto.event.PaymentCompletedEvent.OrderItemDto> items;
 
     @Data
     @Builder

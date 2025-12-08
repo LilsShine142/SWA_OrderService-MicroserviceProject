@@ -5,6 +5,14 @@ spring:
   application:
     name: payment-service
 
+  # --- CẤU HÌNH REDIS (MỚI THÊM) ---
+  data:
+    redis:
+      # Nếu không có biến môi trường SPRING_REDIS_HOST, mặc định dùng localhost (cho debug local)
+      # Khi chạy docker-compose, ta sẽ set SPRING_REDIS_HOST=redis
+      host: ${SPRING_REDIS_HOST:redis}
+      port: ${SPRING_REDIS_PORT:6379}
+
   # Database configuration (PostgreSQL)
   datasource:
     url: jdbc:postgresql://localhost:5434/payment_service?stringtype=unspecified
@@ -29,12 +37,26 @@ spring:
   # Kafka configuration
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-    consumer:
-      group-id: payment-service-group
-      auto-offset-reset: earliest
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#
+#    consumer:
+#      group-id: payment-service-group
+#      auto-offset-reset: earliest
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+#      properties:
+#        spring.json.trusted.packages: "com.example.common_messaging.dto.event"
+#        # BẮT BUỘ phải khai báo chính xác class đầy đủ
+#        spring.json.value.default.type: com.example.common_messaging.dto.event.OrderCreatedEvent
+#        # Nếu có nhiều event thì dùng type mapping (cách này chắc ăn hơn)
+#        spring.json.type.mapping: >
+#          orderCreatedEvent:com.example.common_messaging.dto.event.OrderCreatedEvent,
+#          orderRejectedEvent:com.example.common_messaging.dto.event.OrderRejectedEvent
+#
+#    producer:
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#      properties:
+#        spring.json.add.type.headers: false   # Order Service cũng phải có dòng này (bạn đã có rồi)
 
 logging:
   level:

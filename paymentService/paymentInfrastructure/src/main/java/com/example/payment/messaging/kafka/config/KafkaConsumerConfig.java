@@ -17,10 +17,6 @@ import org.springframework.util.backoff.FixedBackOff;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Kafka Consumer Configuration for Payment Service
- * Infrastructure Layer - Technical implementation
- */
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {
@@ -28,33 +24,30 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
     private String bootstrapServers;
 
-    @Value("${spring.kafka.consumer.group-id:payment-service-group}")
-    private String groupId;
-
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "payment-service-group");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+
+        // QUAN TRỌNG NHẤT – 2 DÒNG NÀY BẠN ĐANG THIẾU!!!
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.example.common_messaging.dto.event,com.example.common_messaging.*");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.common_messaging.dto.event.OrderCreatedEvent");
+
+        // Dùng ErrorHandlingDeserializer để thấy lỗi rõ ràng
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
-
-        // Use type headers for deserialization
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.example.common_messaging.dto.event");
-        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, true);
-        props.put(JsonDeserializer.REMOVE_TYPE_INFO_HEADERS, false);
 
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setCommonErrorHandler(errorHandler());
         factory.setConcurrency(3);
@@ -65,10 +58,14 @@ public class KafkaConsumerConfig {
     public DefaultErrorHandler errorHandler() {
         return new DefaultErrorHandler(
                 (record, exception) -> {
-                    System.err.println("Kafka consume error: " + exception.getMessage());
+                    System.err.println("=== KAFKA DESERIALIZE ERROR ===");
+                    System.err.println("Topic: " + record.topic());
+                    System.err.println("Key: " + record.key());
+//                    System.err.println("Value (raw bytes): " + new String(record.value()));
+                    exception.printStackTrace();
+                    System.err.println("================================");
                 },
                 new FixedBackOff(2000L, 3L)
         );
     }
 }
-

@@ -30,7 +30,10 @@ public class KafkaOrderCreatedPublisher implements OrderCreatedPaymentRequestPub
             
             // Convert Domain Event to Messaging DTO
             OrderCreatedEvent messagingEvent = convertToMessagingEvent(order);
-            
+            System.out.println("[KAFKA] Converted OrderCreatedEvent: orderId=" + messagingEvent.getOrderId() +
+                    ", customerId=" + messagingEvent.getCustomerId() +
+                    "status=" + messagingEvent.getStatus() +
+                    ", totalAmount=" + messagingEvent.getTotalAmount());
             // Publish to Kafka
             kafkaTemplate.send(TOPIC_ORDER_CREATED, messagingEvent);
             
@@ -46,7 +49,7 @@ public class KafkaOrderCreatedPublisher implements OrderCreatedPaymentRequestPub
     }
 
     /**
-     * Convert Domain Order entity to Messaging DTO
+     * Convert Domain Order entity to Message DTO
      * This is the adapter pattern - converting between domain and messaging layers
      */
     private OrderCreatedEvent convertToMessagingEvent(Order order) {
